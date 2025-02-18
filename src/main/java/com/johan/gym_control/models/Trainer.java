@@ -1,4 +1,4 @@
-package com.johan.GymControl.models;
+package com.johan.gym_control.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
