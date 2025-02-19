@@ -1,0 +1,36 @@
+package com.johan.gym_control.services.user;
+
+import com.johan.gym_control.models.IMCTracking;
+import com.johan.gym_control.models.User;
+import com.johan.gym_control.repositories.IMCTrackingRepository;
+import com.johan.gym_control.repositories.UserRepository;
+import com.johan.gym_control.services.imcTracking.UpdateIMCCommand;
+import com.johan.gym_control.services.interfaces.ICommandParametrized;
+
+import java.util.Optional;
+
+public class UpdateUserCommand implements ICommandParametrized<Void, User> {
+  private final UserRepository userRepository;
+  private final UpdateIMCCommand updateIMCCommand;
+
+  public UpdateUserCommand(UserRepository userRepository, UpdateIMCCommand updateIMCCommand) {
+    this.userRepository = userRepository;
+    this.updateIMCCommand = updateIMCCommand;
+  }
+  
+  @Override
+  public Void execute(User user) {
+    Optional<User> userOpt = userRepository.findById(user.getUserId());
+    if (userOpt.isPresent()) {
+      User existingUser = userOpt.get();
+      existingUser.setUserName(user.getUserName());
+      existingUser.setUserLastName(user.getUserLastName());
+      existingUser.setUserPhone(user.getUserPhone());
+      existingUser.setUserWeight(user.getUserWeight());
+      existingUser.setUserHeight(user.getUserHeight());
+      updateIMCCommand.execute(existingUser);
+      userRepository.save(existingUser);
+    }
+    return null;
+  }
+}
