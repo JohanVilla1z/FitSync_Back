@@ -19,6 +19,10 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,28 +38,39 @@ public class User implements IMCObservable {
     private Long userId;
 
     @Column(name = "userName", nullable = false)
+    @Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres")
+    @NotBlank(message = "El nombre no puede estar vacío")
     private String userName;
 
     @Column(name = "userLastName", nullable = false)
+    @Size(min = 2, max = 50, message = "El apellido debe tener entre 2 y 50 caracteres")
+    @NotBlank(message = "El apellido no puede estar vacío")
     private String userLastName;
 
     @Temporal(TemporalType.DATE)
     @Column(name = "registerDate", nullable = false)
+    @NotNull(message = "La fecha de registro no puede estar vacía")
     private Date registerDate;
 
     @Column(name = "userEmail", nullable = false, unique = true)
+    @Email(message = "Debe proporcionar un correo válido")
+    @NotBlank(message = "El correo no puede estar vacío")
     private String userEmail;
 
     @Column(name = "userPassword", nullable = false)
+    @NotBlank(message = "La contraseña no puede estar vacía")
     private String userPassword;
 
     @Column(name = "userPhone")
+    @Size(min = 10, max = 15, message = "El teléfono debe tener entre 10 y 15 caracteres")
     private String userPhone;
 
     @Column(name = "userWeight")
+    @NotNull(message = "El peso no puede estar vacío")
     private Float userWeight;
 
     @Column(name = "userHeight")
+    @NotNull(message = "La altura no puede estar vacía")
     private Float userHeight;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -65,7 +80,7 @@ public class User implements IMCObservable {
     private List<EntryLog> entryLogs;
 
     @ManyToOne
-    @JoinColumn(name = "trainer_id", nullable = false)
+    @JoinColumn(name = "trainer_id")
     private Trainer trainer;
 
     private transient List<IMCObserver> observers = new ArrayList<>();
