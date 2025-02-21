@@ -7,16 +7,16 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class IMCTrackingObserver implements IMCObserver {
-    private final UpdateIMCCommand updateIMCCommand;
+  private final UpdateIMCCommand updateIMCCommand;
 
-    public IMCTrackingObserver(UpdateIMCCommand updateIMCCommand) {
-        this.updateIMCCommand = updateIMCCommand;
-    }
+  public IMCTrackingObserver(UpdateIMCCommand updateIMCCommand) {
+    this.updateIMCCommand = updateIMCCommand;
+  }
 
-    @Override
-    public void updateIMC(User user) {
-        if (user.getUserWeight() != null && user.getUserHeight() != null) {
-            updateIMCCommand.execute(user);
-        }
+  @Override
+  public void updateIMC(User user) {
+    if (user.getUserWeight() != null && user.getUserHeight() != null) {
+      updateIMCCommand.execute(user);
     }
+  }
 }
