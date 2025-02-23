@@ -17,7 +17,7 @@ public class UpdateIMCCommand {
   }
 
   public void execute(User user) {
-    float imcValue = user.getUserWeight() / (user.getUserHeight() * user.getUserHeight());
+    Float imcValue = user.getUserWeight() / (user.getUserHeight() * user.getUserHeight());
     IMCTracking imcTracking = new IMCTracking();
     imcTracking.setUser(user);
     imcTracking.setMeasurementDate(new Date());

@@ -23,12 +23,20 @@ public class UpdateUserCommand implements ICommandParametrized<Void, User> {
     Optional<User> userOpt = userRepository.findById(user.getUserId());
     if (userOpt.isPresent()) {
       User existingUser = userOpt.get();
-      existingUser.addObserver(imcTrackingObserver);
+
+      // Restaurar observadores
+      if (!existingUser.getObservers().contains(imcTrackingObserver)) {
+        existingUser.addObserver(imcTrackingObserver);
+      }
+
       existingUser.setUserName(user.getUserName());
       existingUser.setUserLastName(user.getUserLastName());
       existingUser.setUserPhone(user.getUserPhone());
+
+      // Usar setters para notificar a los observadores
       existingUser.setUserWeight(user.getUserWeight());
       existingUser.setUserHeight(user.getUserHeight());
+
       userRepository.save(existingUser);
     }
     return null;
