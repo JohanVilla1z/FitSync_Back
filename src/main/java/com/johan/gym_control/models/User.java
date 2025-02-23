@@ -47,6 +47,10 @@ public class User implements IMCObservable {
     @NotBlank(message = "El apellido no puede estar vacío")
     private String userLastName;
 
+    @Column(name = "is_active", nullable = false)
+    @NotNull(message = "El estado de actividad no puede estar vacío")
+    private Boolean isActive = true;
+
     @Temporal(TemporalType.DATE)
     @Column(name = "registerDate", nullable = false)
     @NotNull(message = "La fecha de registro no puede estar vacía")
