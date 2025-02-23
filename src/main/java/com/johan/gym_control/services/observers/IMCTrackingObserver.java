@@ -16,8 +16,14 @@ public class IMCTrackingObserver implements IMCObserver {
 
   @Override
   public void updateIMC(User user) {
-    if (user.getUserWeight() != null && user.getUserHeight() != null) {
-      updateIMCCommand.execute(user);
+    try {
+      if (user.getUserWeight() != null && user.getUserHeight() != null &&
+          user.getUserWeight() > 0 && user.getUserHeight() > 0) {
+        updateIMCCommand.execute(user);
+      }
+    } catch (Exception e) {
+      // Aquí podrías agregar logging o manejo de errores
+      throw new RuntimeException("Error al actualizar el IMC: " + e.getMessage());
     }
   }
 }

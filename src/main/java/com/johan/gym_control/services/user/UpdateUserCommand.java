@@ -1,5 +1,6 @@
 package com.johan.gym_control.services.user;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import com.johan.gym_control.models.User;
@@ -24,18 +25,27 @@ public class UpdateUserCommand implements ICommandParametrized<Void, User> {
     if (userOpt.isPresent()) {
       User existingUser = userOpt.get();
 
-      // Restaurar observadores
-      if (!existingUser.getObservers().contains(imcTrackingObserver)) {
+      // Restaurar observadores solo si es necesario
+      if (existingUser.getObservers() == null || !existingUser.getObservers().contains(imcTrackingObserver)) {
         existingUser.addObserver(imcTrackingObserver);
       }
 
+      // Actualizar datos básicos
       existingUser.setUserName(user.getUserName());
       existingUser.setUserLastName(user.getUserLastName());
       existingUser.setUserPhone(user.getUserPhone());
 
-      // Usar setters para notificar a los observadores
-      existingUser.setUserWeight(user.getUserWeight());
-      existingUser.setUserHeight(user.getUserHeight());
+      // Verificar si hubo cambios en peso o altura
+      boolean weightChanged = !Objects.equals(existingUser.getUserWeight(), user.getUserWeight());
+      boolean heightChanged = !Objects.equals(existingUser.getUserHeight(), user.getUserHeight());
+
+      // Actualizar peso y altura solo si han cambiado
+      if (weightChanged) {
+        existingUser.setUserWeight(user.getUserWeight());
+      }
+      if (heightChanged) {
+        existingUser.setUserHeight(user.getUserHeight());
+      }
 
       userRepository.save(existingUser);
     }
