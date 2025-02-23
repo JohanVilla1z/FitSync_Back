@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.johan.gym_control.models.User;
 import com.johan.gym_control.repositories.UserRepository;
-import com.johan.gym_control.services.interfaces.ICommand;
+import com.johan.gym_control.services.interfaces.ICommandParametrized;
 
-public class GetAllActiveUsersCommand implements ICommand<List<User>> {
+public class GetAllActiveUsersCommand implements ICommandParametrized<List<User>, Boolean> {
   private final UserRepository userRepository;
 
   public GetAllActiveUsersCommand(UserRepository userRepository) {
@@ -14,7 +14,7 @@ public class GetAllActiveUsersCommand implements ICommand<List<User>> {
   }
 
   @Override
-  public List<User> execute() {
-    return userRepository.findByIsActive(true);
+  public List<User> execute(Boolean active) {
+    return userRepository.findByIsActive(active == null ? true : active);
   }
 }
