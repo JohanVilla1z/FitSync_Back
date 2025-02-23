@@ -17,16 +17,16 @@ public class UpdateIMCCommand {
   }
 
   public void execute(User user) {
-    // Validar que peso y altura no sean nulos o cero
     if (user.getUserWeight() == null || user.getUserHeight() == null ||
         user.getUserWeight() <= 0 || user.getUserHeight() <= 0) {
-      throw new IllegalArgumentException("Peso y altura deben ser valores positivos");
+      throw new IllegalArgumentException("Peso y altura deben ser valores positivos.");
     }
 
-    // Convertir altura a metros si está en centímetros
-    Float heightInMeters = user.getUserHeight() >= 3 ? user.getUserHeight() / 100 : user.getUserHeight();
+    Float heightInMeters = user.getUserHeight();
+    if (user.getUserHeight() > 10) {
+      heightInMeters = user.getUserHeight() / 100;
+    }
 
-    // Calcular IMC con 2 decimales
     Float imcValue = Math.round((user.getUserWeight() / (heightInMeters * heightInMeters)) * 100.0f) / 100.0f;
 
     IMCTracking imcTracking = new IMCTracking();
