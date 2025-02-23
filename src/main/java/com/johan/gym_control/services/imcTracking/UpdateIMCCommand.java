@@ -1,27 +1,27 @@
 package com.johan.gym_control.services.imcTracking;
 
+import java.util.Date;
+
+import org.springframework.stereotype.Service;
+
 import com.johan.gym_control.models.IMCTracking;
 import com.johan.gym_control.models.User;
 import com.johan.gym_control.repositories.IMCTrackingRepository;
-import com.johan.gym_control.services.interfaces.ICommandParametrized;
 
-import java.util.Date;
-
-public class UpdateIMCCommand implements ICommandParametrized<Void, User> {
+@Service
+public class UpdateIMCCommand {
   private final IMCTrackingRepository imcTrackingRepository;
 
   public UpdateIMCCommand(IMCTrackingRepository imcTrackingRepository) {
     this.imcTrackingRepository = imcTrackingRepository;
   }
 
-  @Override
-  public Void execute(User user) {
-    Float imc = user.getUserWeight() / (user.getUserHeight() * user.getUserHeight());
-    IMCTracking imcRecord = new IMCTracking();
-    imcRecord.setUser(user);
-    imcRecord.setMeasurementDate(new Date());
-    imcRecord.setImcValue(imc);
-    imcTrackingRepository.save(imcRecord);
-    return null;
+  public void execute(User user) {
+    float imcValue = user.getUserWeight() / (user.getUserHeight() * user.getUserHeight());
+    IMCTracking imcTracking = new IMCTracking();
+    imcTracking.setUser(user);
+    imcTracking.setMeasurementDate(new Date());
+    imcTracking.setImcValue(imcValue);
+    imcTrackingRepository.save(imcTracking);
   }
 }
