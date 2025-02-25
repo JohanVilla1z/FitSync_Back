@@ -30,8 +30,8 @@ public abstract class Person {
 
   @Column(nullable = false)
   @NotBlank(message = "La contraseña no puede estar vacía")
-  @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
-  @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).*$", message = "La contraseña debe contener al menos un número, una letra mayúscula, una minúscula y un carácter especial")
+  @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).*$",
+          message = "La contraseña debe contener al menos un número, una letra mayúscula, una minúscula y un carácter especial")
   private String password;
 
   @Column(nullable = false)
