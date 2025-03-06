@@ -1,5 +1,6 @@
 package com.johan.gym_control.models;
 
+import com.johan.gym_control.models.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -37,9 +38,19 @@ public abstract class Person {
   @Column(nullable = false)
   @NotBlank(message = "El nombre completo no puede estar vacío")
   @Size(min = 2, max = 100, message = "El nombre completo debe tener entre 2 y 100 caracteres")
-  private String fullName;
+  private String name;
 
   @Enumerated(EnumType.STRING)
   @NotNull(message = "El rol no puede estar vacío")
   private Role role;
+
+  protected Person() {
+  }
+
+  protected Person(String name, String email, String password, Role role) {
+    this.name = name;
+    this.email = email;
+    this.password = password;
+    this.role = role;
+  }
 }
