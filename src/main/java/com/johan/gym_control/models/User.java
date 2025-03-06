@@ -1,12 +1,8 @@
 package com.johan.gym_control.models;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
+import com.johan.gym_control.models.enums.Role;
 import com.johan.gym_control.services.observers.interfaces.IMCObservable;
 import com.johan.gym_control.services.observers.interfaces.IMCObserver;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,15 +19,21 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 @Data
+@Entity
+@Builder
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 @Table(name = "Usuarios")
 public class User extends Person implements IMCObservable {
 
@@ -41,6 +43,7 @@ public class User extends Person implements IMCObservable {
 
   @Column(name = "is_active", nullable = false)
   @NotNull(message = "El estado de actividad no puede estar vacío")
+  @Builder.Default
   private Boolean isActive = true;
 
   @Temporal(TemporalType.DATE)
@@ -76,6 +79,7 @@ public class User extends Person implements IMCObservable {
   @JoinColumn(name = "trainer_id")
   private Trainer trainer;
 
+  @Builder.Default
   private transient List<IMCObserver> observers = new ArrayList<>();
 
   @PrePersist
@@ -108,5 +112,29 @@ public class User extends Person implements IMCObservable {
   public void setUserHeight(Float height) {
     this.userHeight = height;
     notifyObservers();
+  }
+
+  @Override
+  public void setName(String name) {
+    super.setName(name);
+  }
+
+  @Override
+  public void setEmail(String email) {
+    super.setEmail(email);
+  }
+
+  @Override
+  public void setPassword(String password) {
+    super.setPassword(password);
+  }
+
+  @Override
+  public String getName() {
+    return super.getName();
+  }
+
+  public String getUserEmail() {
+    return super.getEmail();
   }
 }
