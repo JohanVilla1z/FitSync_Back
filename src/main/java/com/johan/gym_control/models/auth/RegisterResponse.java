@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginResponse {
-  private String token;
-  @Builder.Default
-  private String type = "Bearer";
+public class RegisterResponse {
   private String email;
-  private String role;
+  private String name;
+  private String message;
 }
