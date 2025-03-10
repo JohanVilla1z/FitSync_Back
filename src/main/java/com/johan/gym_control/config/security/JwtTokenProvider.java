@@ -2,6 +2,7 @@ package com.johan.gym_control.config.security;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Map;
 
 import javax.crypto.SecretKey;
 
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -31,28 +33,25 @@ public class JwtTokenProvider {
     Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
     return Jwts.builder()
-        .subject(userDetails.getUsername())
-        .issuedAt(now)
-        .expiration(expiryDate)
-        .signWith(getSigningKey())
-        .compact();
+            .setSubject(userDetails.getUsername())
+            .setIssuedAt(now)
+            .setExpiration(expiryDate)
+            .signWith(getSigningKey())
+            .addClaims(Map.of("role", userDetails.getAuthorities().iterator().next().getAuthority()))
+            .compact();
   }
 
   public String getUsernameFromToken(String token) {
-    return Jwts.parser()
-        .verifyWith(getSigningKey())
-        .build()
-        .parseSignedClaims(token)
-        .getPayload()
-        .getSubject();
+    return getClaimsFromToken(token).getSubject();
+  }
+
+  public Claims getClaimsFromToken(String token) {
+    return Jwts.parser().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
   }
 
   public boolean validateToken(String token) {
     try {
-      Jwts.parser()
-          .verifyWith(getSigningKey())
-          .build()
-          .parseSignedClaims(token);
+      Jwts.parser().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
       return true;
     } catch (Exception e) {
       return false;
