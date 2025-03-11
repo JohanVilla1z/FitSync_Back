@@ -55,14 +55,14 @@ public class User extends Person implements IMCObservable {
   @Size(min = 10, max = 15, message = "El teléfono debe tener entre 10 y 15 caracteres")
   private String userPhone;
 
-  @Column(name = "userWeight")
+  @Column(name = "userWeight", nullable = false)
   @NotNull(message = "El peso no puede estar vacío")
   @Positive(message = "El peso debe ser un valor positivo")
   @DecimalMax(value = "300.0", message = "El peso no puede ser mayor a 300 kg")
   @DecimalMin(value = "20.0", message = "El peso no puede ser menor a 20 kg")
   private Float userWeight;
 
-  @Column(name = "userHeight")
+  @Column(name = "userHeight", nullable = false)
   @NotNull(message = "La altura no puede estar vacía")
   @Positive(message = "La altura debe ser un valor positivo")
   @DecimalMax(value = "2.5", message = "La altura no puede ser mayor a 2.5 metros")
