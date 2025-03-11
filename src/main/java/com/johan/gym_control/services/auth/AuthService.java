@@ -1,12 +1,5 @@
 package com.johan.gym_control.services.auth;
 
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import com.johan.gym_control.config.security.JwtTokenProvider;
 import com.johan.gym_control.exceptions.auth.AuthenticationException;
 import com.johan.gym_control.exceptions.auth.UserAlreadyExistsException;
@@ -19,8 +12,14 @@ import com.johan.gym_control.models.auth.RegisterRequest;
 import com.johan.gym_control.models.auth.RegisterResponse;
 import com.johan.gym_control.repositories.AdminRepository;
 import com.johan.gym_control.repositories.UserRepository;
-
+import com.johan.gym_control.services.user.CreateUserCommand;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -49,15 +48,16 @@ public class AuthService {
     user.setIsActive(false);
     user.setRegisterDate(new java.util.Date());
 
-    // Save user
-    User savedUser = userRepository.save(user);
+    // Use the Command pattern
+    CreateUserCommand createUserCommand = new CreateUserCommand(userRepository, user);
+    User savedUser = createUserCommand.execute();
 
     // Return response
     return RegisterResponse.builder()
-        .email(savedUser.getEmail())
-        .name(savedUser.getName())
-        .message("Usuario registrado exitosamente")
-        .build();
+            .email(savedUser.getEmail())
+            .name(savedUser.getName())
+            .message("Usuario registrado exitosamente")
+            .build();
   }
 
   public RegisterResponse registerAdmin(AdminRequest request) {
@@ -68,7 +68,7 @@ public class AuthService {
 
     // Create new admin
     Admin admin = new Admin();
-    admin.setName(request.getName()+ " " + request.getLastName());
+    admin.setName(request.getName() + " " + request.getLastName());
     admin.setEmail(request.getEmail());
     admin.setPassword(passwordEncoder.encode(request.getPassword()));
 
@@ -77,10 +77,10 @@ public class AuthService {
 
     // Return response
     return RegisterResponse.builder()
-        .email(savedAdmin.getEmail())
-        .name(savedAdmin.getName())
-        .message("Administrador registrado exitosamente")
-        .build();
+            .email(savedAdmin.getEmail())
+            .name(savedAdmin.getName())
+            .message("Administrador registrado exitosamente")
+            .build();
   }
 
   public LoginResponse authenticate(LoginRequest request) {
@@ -90,27 +90,27 @@ public class AuthService {
 
       // Authenticate credentials
       Authentication authentication = authenticationManager.authenticate(
-          new UsernamePasswordAuthenticationToken(
-              request.getEmail(),
-              request.getPassword()));
+              new UsernamePasswordAuthenticationToken(
+                      request.getEmail(),
+                      request.getPassword()));
 
       // Generate JWT token
       String jwt = tokenProvider.generateToken(userDetails);
 
       // Build and return response
       return LoginResponse.builder()
-          .token(jwt)
-          .type("Bearer")
-          .email(userDetails.getUsername())
-          .role(userDetails.getAuthorities().iterator().next().getAuthority())
-          .build();
+              .token(jwt)
+              .type("Bearer")
+              .email(userDetails.getUsername())
+              .role(userDetails.getAuthorities().iterator().next().getAuthority())
+              .build();
 
     } catch (AuthenticationException e) {
       throw new com.johan.gym_control.exceptions.auth.AuthenticationException(
-          "Credenciales inválidas: " + e.getMessage());
+              "Credenciales inválidas: " + e.getMessage());
     } catch (Exception e) {
       throw new com.johan.gym_control.exceptions.auth.AuthenticationException(
-          "Error en la autenticación: " + e.getMessage());
+              "Error en la autenticación: " + e.getMessage());
     }
   }
 }
