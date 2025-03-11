@@ -2,6 +2,7 @@ package com.johan.gym_control.models.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,4 +30,10 @@ public class RegisterRequest {
   @NotBlank(message = "La contrasenia no puede estar vacia")
   @Size(min = 6, message = "La contrasenia debe tener al menos 6 caracteres")
   private String password;
+
+  @NotNull(message = "La altura no puede estar vacía")
+  private Float userHeight;
+
+  @NotNull(message = "El peso no puede estar vacío")
+  private Float userWeight;
 }
