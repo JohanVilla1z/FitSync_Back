@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface IMCTrackingRepository extends JpaRepository<IMCTracking, Long> {
-    List<IMCTracking> findByUser(User user);
+  List<IMCTracking> findByUserOrderByMeasurementDateDesc(User user);
 }

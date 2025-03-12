@@ -23,7 +23,7 @@ public class UpdateIMCCommand {
     }
 
     Float heightInMeters = user.getUserHeight();
-    if (user.getUserHeight() > 10) {
+    if (user.getUserHeight() > 2.5) {
       heightInMeters = user.getUserHeight() / 100;
     }
 

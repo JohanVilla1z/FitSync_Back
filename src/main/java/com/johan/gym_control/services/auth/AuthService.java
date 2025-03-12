@@ -12,6 +12,7 @@ import com.johan.gym_control.models.auth.RegisterRequest;
 import com.johan.gym_control.models.auth.RegisterResponse;
 import com.johan.gym_control.repositories.AdminRepository;
 import com.johan.gym_control.repositories.UserRepository;
+import com.johan.gym_control.services.observers.IMCTrackingObserver;
 import com.johan.gym_control.services.user.CreateUserCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +31,7 @@ public class AuthService {
   private final AuthenticationManager authenticationManager;
   private final JwtTokenProvider tokenProvider;
   private final CustomUserDetailsService userDetailsService;
+  private final IMCTrackingObserver imcTrackingObserver;
 
   public RegisterResponse register(RegisterRequest request) {
     // Check if user already exists
@@ -51,6 +53,13 @@ public class AuthService {
     // Use the Command pattern
     CreateUserCommand createUserCommand = new CreateUserCommand(userRepository, user);
     User savedUser = createUserCommand.execute();
+
+    // Crear registro IMC inicial
+    if (savedUser.getUserWeight() != null && savedUser.getUserHeight() != null &&
+            savedUser.getUserWeight() > 0 && savedUser.getUserHeight() > 0) {
+      savedUser.addObserver(imcTrackingObserver);
+      savedUser.notifyObservers();
+    }
 
     // Return response
     return RegisterResponse.builder()
