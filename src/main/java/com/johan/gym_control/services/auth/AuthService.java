@@ -45,7 +45,7 @@ public class AuthService {
     user.setPassword(passwordEncoder.encode(request.getPassword()));
     user.setUserHeight(request.getUserHeight());
     user.setUserWeight(request.getUserWeight());
-    user.setIsActive(false);
+    user.setIsActive(true);
     user.setRegisterDate(new java.util.Date());
 
     // Use the Command pattern
