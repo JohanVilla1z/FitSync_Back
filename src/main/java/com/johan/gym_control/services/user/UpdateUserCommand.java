@@ -19,13 +19,13 @@ public class UpdateUserCommand implements ICommandParametrized<Void, User> {
 
   @Override
   public Void execute(User user) {
-    Optional<User> userOpt = userRepository.findById(user.getUserId());
+    Optional<User> userOpt = userRepository.findById(user.getId());
     if (userOpt.isPresent()) {
       User existingUser = userOpt.get();
 
       existingUser.addObserver(imcTrackingObserver);
 
-      existingUser.setUserName(user.getUserName());
+      existingUser.setName(user.getName());
       existingUser.setUserLastName(user.getUserLastName());
       existingUser.setUserPhone(user.getUserPhone());
 
