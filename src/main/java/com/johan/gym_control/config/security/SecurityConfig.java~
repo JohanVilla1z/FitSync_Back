@@ -35,7 +35,7 @@ public class SecurityConfig {
                     .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
                     .requestMatchers("/api/equipment/**").hasRole(Role.ADMIN.name())
                     .requestMatchers("/api/trainer/**").hasAnyRole(Role.ADMIN.name(), Role.TRAINER.name())
-                    .requestMatchers("/api/user/**").hasAnyRole(Role.USER.name(),Role.ADMIN.name(), Role.TRAINER.name())
+                    .requestMatchers("/api/user/**").hasRole(Role.USER.name())
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                     .anyRequest().authenticated()
             )
