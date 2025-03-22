@@ -6,8 +6,6 @@ import com.johan.gym_control.repositories.TrainerRepository;
 import com.johan.gym_control.repositories.UserRepository;
 import com.johan.gym_control.services.interfaces.ICommandParametrized;
 
-import java.util.Optional;
-
 public class AssignUserToTrainerCommand implements ICommandParametrized<Void, Long[]> {
   private final TrainerRepository trainerRepository;
   private final UserRepository userRepository;
@@ -21,20 +19,21 @@ public class AssignUserToTrainerCommand implements ICommandParametrized<Void, Lo
   public Void execute(Long[] params) {
     Long userId = params[0];
     Long trainerId = params[1];
-    Optional<User> userOpt = userRepository.findById(userId);
-    Optional<Trainer> trainerOpt = trainerRepository.findById(trainerId);
 
-    if (userOpt.isPresent() && trainerOpt.isPresent()) {
-      User user = userOpt.get();
-      Trainer trainer = trainerOpt.get();
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " does not exist."));
+    Trainer trainer = trainerRepository.findById(trainerId)
+        .orElseThrow(() -> new IllegalArgumentException("Trainer with ID " + trainerId + " does not exist."));
 
-      if (trainer.isTrainerAvailable()) {
-        user.setTrainer(trainer);
-        trainer.getUsers().add(user);
-        userRepository.save(user);
-        trainerRepository.save(trainer);
-      }
+    if (!trainer.isTrainerAvailable()) {
+      throw new IllegalStateException("Trainer with ID " + trainerId + " is not available.");
     }
+
+    user.setTrainer(trainer);
+    trainer.getUsers().add(user);
+    userRepository.save(user);
+    trainerRepository.save(trainer);
+
     return null;
   }
 }

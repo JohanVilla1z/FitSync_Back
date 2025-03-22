@@ -6,8 +6,6 @@ import com.johan.gym_control.repositories.TrainerRepository;
 import com.johan.gym_control.repositories.UserRepository;
 import com.johan.gym_control.services.interfaces.ICommandParametrized;
 
-import java.util.Optional;
-
 public class RemoveUserFromTrainerCommand implements ICommandParametrized<Void, Long> {
   private final TrainerRepository trainerRepository;
   private final UserRepository userRepository;
@@ -19,17 +17,19 @@ public class RemoveUserFromTrainerCommand implements ICommandParametrized<Void, 
 
   @Override
   public Void execute(Long userId) {
-    Optional<User> userOpt = userRepository.findById(userId);
-    if (userOpt.isPresent()) {
-      User user = userOpt.get();
-      Trainer trainer = user.getTrainer();
-      if (trainer != null) {
-        trainer.getUsers().remove(user);
-        user.setTrainer(null);
-        userRepository.save(user);
-        trainerRepository.save(trainer);
-      }
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " does not exist."));
+
+    Trainer trainer = user.getTrainer();
+    if (trainer == null) {
+      throw new IllegalStateException("User with ID " + userId + " is not assigned to any trainer.");
     }
+
+    trainer.getUsers().remove(user);
+    user.setTrainer(null);
+    userRepository.save(user);
+    trainerRepository.save(trainer);
+
     return null;
   }
 }
