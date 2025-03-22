@@ -51,15 +51,8 @@ public class AuthService {
     user.setRegisterDate(new java.util.Date());
 
     // Use the Command pattern
-    CreateUserCommand createUserCommand = new CreateUserCommand(userRepository, user);
+    CreateUserCommand createUserCommand = new CreateUserCommand(userRepository, user, imcTrackingObserver);
     User savedUser = createUserCommand.execute();
-
-    // Crear registro IMC inicial
-    if (savedUser.getUserWeight() != null && savedUser.getUserHeight() != null &&
-            savedUser.getUserWeight() > 0 && savedUser.getUserHeight() > 0) {
-      savedUser.addObserver(imcTrackingObserver);
-      savedUser.notifyObservers();
-    }
 
     // Return response
     return RegisterResponse.builder()
