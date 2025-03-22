@@ -1,8 +1,5 @@
 package com.johan.gym_control.models;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -11,6 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -23,7 +23,9 @@ public class Trainer extends Person {
   @Size(max = 5, message = "Un entrenador no puede tener más de 5 usuarios asignados")
   private List<User> users = new ArrayList<>();
 
+  private Boolean isActive = true;
+
   public Boolean isTrainerAvailable() {
-    return users.size() < 5;
+    return users.size() < 5 && isActive;
   }
 }
