@@ -1,5 +1,6 @@
 package com.johan.gym_control.controllers.auth;
 
+import com.johan.gym_control.exceptions.auth.AuthenticationException;
 import com.johan.gym_control.models.auth.AdminRequest;
 import com.johan.gym_control.models.auth.LoginRequest;
 import com.johan.gym_control.models.auth.LoginResponse;
@@ -23,7 +24,11 @@ public class AuthController {
 
   @PostMapping("/login")
   public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
-    return ResponseEntity.ok(authService.authenticate(loginRequest));
+    try {
+      return ResponseEntity.ok(authService.authenticate(loginRequest));
+    } catch (AuthenticationException ex) {
+      throw new AuthenticationException("Error en la autenticación: " + ex.getMessage());
+    }
   }
 
   @PostMapping("/register-user")
