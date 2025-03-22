@@ -1,18 +1,9 @@
 package com.johan.gym_control.controllers.equipment;
 
-import com.johan.gym_control.models.Equipment;
-import com.johan.gym_control.models.dto.equipment.EquipmentRequestDTO;
-import com.johan.gym_control.models.dto.equipment.EquipmentResponseDTO;
-import com.johan.gym_control.repositories.EquipmentRepository;
-import com.johan.gym_control.services.equipment.CreateEquipmentCommand;
-import com.johan.gym_control.services.equipment.DeleteEquipmentCommand;
-import com.johan.gym_control.services.equipment.GetAllEquipmentCommand;
-import com.johan.gym_control.services.equipment.GetEquipmentByIdCommand;
-import com.johan.gym_control.services.equipment.ToggleEquipmentAvailabilityCommand;
-import com.johan.gym_control.services.equipment.UpdateEquipmentCommand;
-import com.johan.gym_control.utils.EquipmentMapper;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,9 +15,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.johan.gym_control.models.Equipment;
+import com.johan.gym_control.models.dto.equipment.EquipmentRequestDTO;
+import com.johan.gym_control.models.dto.equipment.EquipmentResponseDTO;
+import com.johan.gym_control.repositories.EquipmentRepository;
+import com.johan.gym_control.services.equipment.CreateEquipmentCommand;
+import com.johan.gym_control.services.equipment.DeleteEquipmentCommand;
+import com.johan.gym_control.services.equipment.GetAllEquipmentCommand;
+import com.johan.gym_control.services.equipment.GetEquipmentByIdCommand;
+import com.johan.gym_control.services.equipment.ToggleEquipmentAvailabilityCommand;
+import com.johan.gym_control.services.equipment.UpdateEquipmentCommand;
+import com.johan.gym_control.utils.EquipmentMapper;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/equipment")
@@ -36,51 +43,58 @@ public class EquipmentController {
   private final EquipmentMapper equipmentMapper;
   private final ToggleEquipmentAvailabilityCommand toggleCommand;
 
-  /**
-   * Crear un nuevo equipo
-   */
+  @Operation(summary = "Crear un nuevo equipo", description = "Permite crear un nuevo equipo en el sistema.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "201", description = "Equipo creado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EquipmentResponseDTO.class))),
+      @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content(mediaType = "application/json"))
+  })
   @PostMapping
   public ResponseEntity<EquipmentResponseDTO> createEquipment(
-          @Valid @RequestBody EquipmentRequestDTO equipmentRequestDTO) {
+      @Valid @RequestBody EquipmentRequestDTO equipmentRequestDTO) {
     Equipment equipment = equipmentMapper.toEntity(equipmentRequestDTO);
     CreateEquipmentCommand createCommand = new CreateEquipmentCommand(equipmentRepository, equipment);
     Equipment savedEquipment = createCommand.execute();
     return new ResponseEntity<>(equipmentMapper.toDto(savedEquipment), HttpStatus.CREATED);
   }
 
-  /**
-   * Obtener todos los equipos
-   */
+  @Operation(summary = "Obtener todos los equipos", description = "Devuelve una lista de todos los equipos registrados.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Lista de equipos obtenida exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EquipmentResponseDTO.class)))
+  })
   @GetMapping
   public ResponseEntity<List<EquipmentResponseDTO>> getAllEquipment() {
     GetAllEquipmentCommand getAllCommand = new GetAllEquipmentCommand(equipmentRepository);
     List<Equipment> equipments = getAllCommand.execute();
     List<EquipmentResponseDTO> equipmentDTOs = equipments.stream()
-            .map(equipmentMapper::toDto)
-            .collect(Collectors.toList());
+        .map(equipmentMapper::toDto)
+        .collect(Collectors.toList());
     return ResponseEntity.ok(equipmentDTOs);
   }
 
-  /**
-   * Obtener un equipo por su ID
-   */
+  @Operation(summary = "Obtener un equipo por su ID", description = "Devuelve los detalles de un equipo específico.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Equipo encontrado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EquipmentResponseDTO.class))),
+      @ApiResponse(responseCode = "404", description = "Equipo no encontrado", content = @Content(mediaType = "application/json"))
+  })
   @GetMapping("/{id}")
   public ResponseEntity<EquipmentResponseDTO> getEquipmentById(@PathVariable Long id) {
     GetEquipmentByIdCommand getByIdCommand = new GetEquipmentByIdCommand(equipmentRepository);
     Optional<Equipment> equipmentOptional = getByIdCommand.execute(id);
 
     return equipmentOptional
-            .map(equipment -> ResponseEntity.ok(equipmentMapper.toDto(equipment)))
-            .orElse(ResponseEntity.notFound().build());
+        .map(equipment -> ResponseEntity.ok(equipmentMapper.toDto(equipment)))
+        .orElse(ResponseEntity.notFound().build());
   }
 
-  /**
-   * Actualizar un equipo existente
-   */
+  @Operation(summary = "Actualizar un equipo existente", description = "Permite actualizar los detalles de un equipo.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Equipo actualizado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EquipmentResponseDTO.class))),
+      @ApiResponse(responseCode = "404", description = "Equipo no encontrado", content = @Content(mediaType = "application/json"))
+  })
   @PutMapping("/{id}")
   public ResponseEntity<EquipmentResponseDTO> updateEquipment(
-          @PathVariable Long id,
-          @Valid @RequestBody EquipmentRequestDTO equipmentRequestDTO) {
+      @PathVariable Long id,
+      @Valid @RequestBody EquipmentRequestDTO equipmentRequestDTO) {
 
     GetEquipmentByIdCommand getByIdCommand = new GetEquipmentByIdCommand(equipmentRepository);
     Optional<Equipment> equipmentOptional = getByIdCommand.execute(id);
@@ -98,9 +112,11 @@ public class EquipmentController {
     return ResponseEntity.ok(equipmentMapper.toDto(updatedEquipment));
   }
 
-  /**
-   * Eliminar un equipo
-   */
+  @Operation(summary = "Eliminar un equipo", description = "Permite eliminar un equipo del sistema.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Equipo eliminado exitosamente"),
+      @ApiResponse(responseCode = "404", description = "Equipo no encontrado", content = @Content(mediaType = "application/json"))
+  })
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteEquipment(@PathVariable Long id) {
     GetEquipmentByIdCommand getByIdCommand = new GetEquipmentByIdCommand(equipmentRepository);
@@ -115,9 +131,11 @@ public class EquipmentController {
     return ResponseEntity.noContent().build();
   }
 
-  /**
-   * Cambiar la disponibilidad de un equipo
-   */
+  @Operation(summary = "Cambiar la disponibilidad de un equipo", description = "Permite alternar la disponibilidad de un equipo.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Disponibilidad del equipo cambiada exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EquipmentResponseDTO.class))),
+      @ApiResponse(responseCode = "404", description = "Equipo no encontrado", content = @Content(mediaType = "application/json"))
+  })
   @PostMapping("/{id}/toggle-availability")
   public ResponseEntity<EquipmentResponseDTO> toggleAvailability(@PathVariable Long id) {
     toggleCommand.execute(id);
@@ -126,7 +144,7 @@ public class EquipmentController {
     Optional<Equipment> equipment = getByIdCommand.execute(id);
 
     return equipment
-            .map(e -> ResponseEntity.ok(equipmentMapper.toDto(e)))
-            .orElse(ResponseEntity.notFound().build());
+        .map(e -> ResponseEntity.ok(equipmentMapper.toDto(e)))
+        .orElse(ResponseEntity.notFound().build());
   }
 }
