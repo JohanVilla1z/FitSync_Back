@@ -23,4 +23,5 @@ public class UserProfileResponse {
     private Date registerDate;
     private Float currentIMC;
     private String trainerName; // Nombre del entrenador asignado (si existe)
+    private String trainerEmail; // Nombre del entrenador asignado (si existe)
 }
