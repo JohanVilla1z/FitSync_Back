@@ -33,8 +33,10 @@ public class GetUserProfileCommand implements ICommandParametrized<UserProfileRe
 
     // Obtener nombre del entrenador si existe
     String trainerName = null;
+    String trainerEmail = null;
     if (user.getTrainer() != null) {
       trainerName = user.getTrainer().getName();
+      trainerEmail = user.getTrainer().getEmail();
     }
 
     return UserProfileResponse.builder()
@@ -49,6 +51,7 @@ public class GetUserProfileCommand implements ICommandParametrized<UserProfileRe
             .registerDate(user.getRegisterDate())
             .currentIMC(currentIMC)
             .trainerName(trainerName)
+            .trainerEmail(trainerEmail)
             .build();
   }
 }
