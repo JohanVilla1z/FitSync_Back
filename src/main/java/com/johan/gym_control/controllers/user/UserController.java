@@ -2,6 +2,7 @@ package com.johan.gym_control.controllers.user;
 
 import com.johan.gym_control.models.User;
 import com.johan.gym_control.models.dto.imc_tracker.IMCHistoryDTO;
+import com.johan.gym_control.models.dto.user.UpdatePasswordRequest;
 import com.johan.gym_control.models.dto.user.UserProfileResponse;
 import com.johan.gym_control.models.dto.user.UserProfileUpdateRequest;
 import com.johan.gym_control.repositories.IMCTrackingRepository;
@@ -11,6 +12,7 @@ import com.johan.gym_control.services.user.GetAllUsersCommand;
 import com.johan.gym_control.services.user.GetUserIMCHistoryCommand;
 import com.johan.gym_control.services.user.GetUserProfileCommand;
 import com.johan.gym_control.services.user.ToggleUserActiveStatusCommand;
+import com.johan.gym_control.services.user.UpdateUserPasswordCommand;
 import com.johan.gym_control.services.user.UpdateUserProfileCommand;
 import com.johan.gym_control.services.user.UpdateUserProfileCommand.UpdateProfileParams;
 import com.johan.gym_control.utils.UserMapper;
@@ -42,6 +44,7 @@ public class UserController {
   private final IMCTrackingRepository imcTrackingRepository;
   private final UserMapper userMapper;
   private final IMCTrackingObserver imcTrackingObserver;
+  private final UpdateUserPasswordCommand updateUserPasswordCommand;
 
   @Operation(summary = "Obtener perfil del usuario autenticado", description = "Devuelve el perfil del usuario actualmente autenticado.")
   @ApiResponses(value = {
@@ -134,5 +137,21 @@ public class UserController {
             .build();
 
     return ResponseEntity.ok(response);
+  }
+
+  @Operation(summary = "Actualizar contraseña del usuario autenticado", description = "Permite al usuario autenticado actualizar su contraseña.")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Contraseña actualizada exitosamente", content = @Content(mediaType = "application/json")),
+          @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content(mediaType = "application/json")),
+          @ApiResponse(responseCode = "401", description = "No autenticado", content = @Content(mediaType = "application/json")),
+          @ApiResponse(responseCode = "403", description = "Contraseña actual incorrecta", content = @Content(mediaType = "application/json"))
+  })
+  @PutMapping("/update-password")
+  public ResponseEntity<Void> updateUserPassword(
+          @Valid @RequestBody UpdatePasswordRequest request,
+          Authentication authentication) {
+    String userEmail = authentication.getName();
+    updateUserPasswordCommand.execute(userEmail, request);
+    return ResponseEntity.ok().build();
   }
 }
