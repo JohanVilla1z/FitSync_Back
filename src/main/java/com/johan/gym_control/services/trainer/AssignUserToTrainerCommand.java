@@ -5,7 +5,9 @@ import com.johan.gym_control.models.User;
 import com.johan.gym_control.repositories.TrainerRepository;
 import com.johan.gym_control.repositories.UserRepository;
 import com.johan.gym_control.services.interfaces.ICommandParametrized;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AssignUserToTrainerCommand implements ICommandParametrized<Void, Long[]> {
   private final TrainerRepository trainerRepository;
   private final UserRepository userRepository;
@@ -21,9 +23,9 @@ public class AssignUserToTrainerCommand implements ICommandParametrized<Void, Lo
     Long trainerId = params[1];
 
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " does not exist."));
+            .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " does not exist."));
     Trainer trainer = trainerRepository.findById(trainerId)
-        .orElseThrow(() -> new IllegalArgumentException("Trainer with ID " + trainerId + " does not exist."));
+            .orElseThrow(() -> new IllegalArgumentException("Trainer with ID " + trainerId + " does not exist."));
 
     if (!trainer.isTrainerAvailable()) {
       throw new IllegalStateException("Trainer with ID " + trainerId + " is not available.");
