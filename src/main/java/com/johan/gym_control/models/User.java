@@ -137,4 +137,11 @@ public class User extends Person implements IMCObservable {
   public String getUserEmail() {
     return super.getEmail();
   }
+
+  public Float getCurrentIMC() {
+    if (userHeight == null || userWeight == null) {
+      return null;
+    }
+    return userWeight / (userHeight * userHeight);
+  }
 }
