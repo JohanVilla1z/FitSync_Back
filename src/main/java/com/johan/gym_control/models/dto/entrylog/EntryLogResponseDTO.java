@@ -17,6 +17,7 @@ public class EntryLogResponseDTO {
   private Long logId;
   private Date timestamp;
   private String userName;
+  private String userLastName;
   private Set<EquipmentBorrowedDTO> borrowedEquipment;
   private Boolean editable; // Indica si han pasado menos de 8 horas
 }
