@@ -95,7 +95,11 @@ public class TrainerController {
   @GetMapping("/{id}")
   public ResponseEntity<TrainerResponseDTO> getTrainerById(@PathVariable Long id) {
     return getTrainerByIdCommand.execute(id)
-            .map(trainer -> ResponseEntity.ok(trainerMapper.convertToDTO(trainer)))
+            .map(trainer -> {
+              TrainerResponseDTO dto = trainerMapper.convertToDTO(trainer);
+              dto.setAvailable(trainer.isTrainerAvailable());
+              return ResponseEntity.ok(dto);
+            })
             .orElse(ResponseEntity.notFound().build());
   }
 
@@ -103,7 +107,11 @@ public class TrainerController {
   public ResponseEntity<List<TrainerResponseDTO>> getAllTrainers() {
     List<Trainer> trainers = getAllTrainersCommand.execute();
     List<TrainerResponseDTO> dtos = trainers.stream()
-            .map(trainerMapper::convertToDTO)
+            .map(trainer -> {
+              TrainerResponseDTO dto = trainerMapper.convertToDTO(trainer);
+              dto.setAvailable(trainer.isTrainerAvailable());
+              return dto;
+            })
             .collect(Collectors.toList());
     return ResponseEntity.ok(dtos);
   }
