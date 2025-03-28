@@ -10,6 +10,7 @@ import com.johan.gym_control.repositories.IMCTrackingRepository;
 import com.johan.gym_control.repositories.UserRepository;
 import com.johan.gym_control.services.observers.IMCTrackingObserver;
 import com.johan.gym_control.services.user.GetAllUsersCommand;
+import com.johan.gym_control.services.user.GetUserByIdCommand;
 import com.johan.gym_control.services.user.GetUserIMCHistoryCommand;
 import com.johan.gym_control.services.user.GetUserProfileCommand;
 import com.johan.gym_control.services.user.ToggleUserActiveStatusCommand;
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -60,6 +62,20 @@ public class UserController {
     GetUserProfileCommand command = new GetUserProfileCommand(userRepository, imcTrackingRepository);
     UserProfileResponse profile = command.execute(userEmail);
     return ResponseEntity.ok(profile);
+  }
+
+  @Operation(summary = "Obtener usuario por ID", description = "Devuelve los datos de un usuario según su ID.")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Usuario obtenido exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
+          @ApiResponse(responseCode = "404", description = "Usuario no encontrado", content = @Content(mediaType = "application/json"))
+  })
+  @GetMapping("/{userId}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<User> getUserById(@PathVariable Long userId) {
+    GetUserByIdCommand command = new GetUserByIdCommand(userRepository);
+    Optional<User> user = command.execute(userId);
+    return user.map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
   }
 
   @Operation(summary = "Actualizar perfil del usuario autenticado", description = "Permite al usuario autenticado actualizar su perfil.")
@@ -96,7 +112,6 @@ public class UserController {
     List<IMCHistoryDTO> imcHistory = command.execute(userEmail);
     return ResponseEntity.ok(imcHistory);
   }
-
 
   @Operation(summary = "Obtener todos los usuarios", description = "Devuelve una lista de todos los usuarios. Solo accesible para administradores.")
   @ApiResponses(value = {
@@ -165,11 +180,16 @@ public class UserController {
           @ApiResponse(responseCode = "404", description = "Usuario no encontrado", content = @Content(mediaType = "application/json"))
   })
   @PutMapping("/{userId}")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<User> updateUser(
           @PathVariable Long userId,
           @Valid @RequestBody UserUpdateRequest request) {
-    request.setId(userId); // Asegurarse de que el ID del usuario se establece correctamente
-    User updatedUser = updateUserCommand.execute(request);
-    return ResponseEntity.ok(updatedUser);
+    request.setId(userId);
+    try {
+      User updatedUser = updateUserCommand.execute(request);
+      return ResponseEntity.ok(updatedUser);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.notFound().build();
+    }
   }
 }
