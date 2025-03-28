@@ -12,5 +12,6 @@ public class TrainerResponseDTO {
   private String name;
   private String email;
   private boolean isActive;
-  private List<Long> userIds; // Solo IDs de usuarios para evitar recursividad
+  private boolean isAvailable;
+  private List<Long> userIds;
 }
