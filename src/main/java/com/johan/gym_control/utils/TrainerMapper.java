@@ -7,18 +7,19 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class TrainerMapper {
 
   public TrainerResponseDTO convertToDTO(Trainer trainer) {
-    Set<User> usersSet = new HashSet<>(trainer.getUsers());
     return TrainerResponseDTO.builder()
             .id(trainer.getId())
             .name(trainer.getName())
             .email(trainer.getEmail())
             .isActive(trainer.getIsActive())
-            .userIds(usersSet.stream().map(User::getId).toList())
+            .isAvailable(trainer.isTrainerAvailable())  // Agregamos esta línea
+            .userIds(trainer.getUsers().stream().map(User::getId).collect(Collectors.toList()))
             .build();
   }
 }
