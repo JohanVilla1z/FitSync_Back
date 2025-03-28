@@ -5,6 +5,7 @@ import com.johan.gym_control.models.dto.imc_tracker.IMCHistoryDTO;
 import com.johan.gym_control.models.dto.user.UpdatePasswordRequest;
 import com.johan.gym_control.models.dto.user.UserProfileResponse;
 import com.johan.gym_control.models.dto.user.UserProfileUpdateRequest;
+import com.johan.gym_control.models.dto.user.UserUpdateRequest;
 import com.johan.gym_control.repositories.IMCTrackingRepository;
 import com.johan.gym_control.repositories.UserRepository;
 import com.johan.gym_control.services.observers.IMCTrackingObserver;
@@ -12,6 +13,7 @@ import com.johan.gym_control.services.user.GetAllUsersCommand;
 import com.johan.gym_control.services.user.GetUserIMCHistoryCommand;
 import com.johan.gym_control.services.user.GetUserProfileCommand;
 import com.johan.gym_control.services.user.ToggleUserActiveStatusCommand;
+import com.johan.gym_control.services.user.UpdateUserCommand;
 import com.johan.gym_control.services.user.UpdateUserPasswordCommand;
 import com.johan.gym_control.services.user.UpdateUserProfileCommand;
 import com.johan.gym_control.services.user.UpdateUserProfileCommand.UpdateProfileParams;
@@ -45,6 +47,7 @@ public class UserController {
   private final UserMapper userMapper;
   private final IMCTrackingObserver imcTrackingObserver;
   private final UpdateUserPasswordCommand updateUserPasswordCommand;
+  private final UpdateUserCommand updateUserCommand;
 
   @Operation(summary = "Obtener perfil del usuario autenticado", description = "Devuelve el perfil del usuario actualmente autenticado.")
   @ApiResponses(value = {
@@ -153,5 +156,20 @@ public class UserController {
     String userEmail = authentication.getName();
     updateUserPasswordCommand.execute(userEmail, request);
     return ResponseEntity.ok().build();
+  }
+
+  @Operation(summary = "Actualizar usuario por ID", description = "Permite actualizar los datos de un usuario por su ID.")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
+          @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content(mediaType = "application/json")),
+          @ApiResponse(responseCode = "404", description = "Usuario no encontrado", content = @Content(mediaType = "application/json"))
+  })
+  @PutMapping("/{userId}")
+  public ResponseEntity<User> updateUser(
+          @PathVariable Long userId,
+          @Valid @RequestBody UserUpdateRequest request) {
+    request.setId(userId); // Asegurarse de que el ID del usuario se establece correctamente
+    User updatedUser = updateUserCommand.execute(request);
+    return ResponseEntity.ok(updatedUser);
   }
 }
