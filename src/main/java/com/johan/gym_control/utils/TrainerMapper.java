@@ -5,8 +5,6 @@ import com.johan.gym_control.models.User;
 import com.johan.gym_control.models.dto.trainer.TrainerResponseDTO;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
