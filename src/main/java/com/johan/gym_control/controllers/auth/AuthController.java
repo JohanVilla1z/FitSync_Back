@@ -2,10 +2,7 @@ package com.johan.gym_control.controllers.auth;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.johan.gym_control.exceptions.auth.AuthenticationException;
 import com.johan.gym_control.models.auth.AdminRequest;
@@ -16,6 +13,7 @@ import com.johan.gym_control.models.auth.RegisterResponse;
 import com.johan.gym_control.services.auth.AuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,8 +29,8 @@ public class AuthController {
 
   @Operation(summary = "Autenticar usuario", description = "Permite a un usuario iniciar sesión con sus credenciales.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Autenticación exitosa", content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class))),
-      @ApiResponse(responseCode = "401", description = "Credenciales inválidas", content = @Content(mediaType = "application/json"))
+          @ApiResponse(responseCode = "200", description = "Autenticación exitosa", content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class))),
+          @ApiResponse(responseCode = "401", description = "Credenciales inválidas", content = @Content(mediaType = "application/json"))
   })
   @PostMapping("/login")
   public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
@@ -45,8 +43,8 @@ public class AuthController {
 
   @Operation(summary = "Registrar usuario", description = "Registra un nuevo usuario en el sistema.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "201", description = "Usuario registrado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RegisterResponse.class))),
-      @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content(mediaType = "application/json"))
+          @ApiResponse(responseCode = "201", description = "Usuario registrado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RegisterResponse.class))),
+          @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content(mediaType = "application/json"))
   })
   @PostMapping("/register-user")
   public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
@@ -55,11 +53,29 @@ public class AuthController {
 
   @Operation(summary = "Registrar administrador", description = "Registra un nuevo administrador en el sistema.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "201", description = "Administrador registrado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RegisterResponse.class))),
-      @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content(mediaType = "application/json"))
+          @ApiResponse(responseCode = "201", description = "Administrador registrado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RegisterResponse.class))),
+          @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content(mediaType = "application/json"))
   })
   @PostMapping("/register-admin")
   public ResponseEntity<RegisterResponse> registerAdmin(@Valid @RequestBody AdminRequest adminRequest) {
     return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerAdmin(adminRequest));
+  }
+
+  @Operation(summary = "Verificar disponibilidad de email", description = "Verifica si un correo electrónico ya está registrado en el sistema.")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Email disponible", content = @Content(mediaType = "application/json")),
+          @ApiResponse(responseCode = "409", description = "Email ya está en uso", content = @Content(mediaType = "application/json"))
+  })
+  @GetMapping("/check-email")
+  public ResponseEntity<?> checkEmailAvailability(
+          @Parameter(description = "Correo electrónico a verificar", required = true)
+          @RequestParam String email) {
+    boolean isEmailInUse = authService.isEmailAlreadyInUse(email);
+    if (isEmailInUse) {
+      return ResponseEntity.status(HttpStatus.CONFLICT)
+              .body("El correo electrónico ya está en uso");
+    }
+    return ResponseEntity.ok()
+            .body("El correo electrónico está disponible");
   }
 }
