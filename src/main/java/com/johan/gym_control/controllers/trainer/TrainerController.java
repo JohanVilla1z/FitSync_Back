@@ -2,6 +2,7 @@ package com.johan.gym_control.controllers.trainer;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
@@ -18,10 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.johan.gym_control.models.Trainer;
+import com.johan.gym_control.models.User;
 import com.johan.gym_control.models.dto.auth.UpdatePasswordRequest;
 import com.johan.gym_control.models.dto.trainer.AssignUserRequest;
 import com.johan.gym_control.models.dto.trainer.TrainerCreateRequest;
 import com.johan.gym_control.models.dto.trainer.TrainerResponseDTO;
+import com.johan.gym_control.models.dto.user.UserProfileResponse;
 import com.johan.gym_control.services.trainer.AssignUserToTrainerCommand;
 import com.johan.gym_control.services.trainer.CreateTrainerCommand;
 import com.johan.gym_control.services.trainer.DeleteTrainerCommand;
@@ -31,6 +34,7 @@ import com.johan.gym_control.services.trainer.ToggleTrainerActiveStatusCommand;
 import com.johan.gym_control.services.trainer.UpdateTrainerCommand;
 import com.johan.gym_control.services.trainer.UpdateTrainerPasswordCommand;
 import com.johan.gym_control.utils.TrainerMapper;
+import com.johan.gym_control.utils.UserMapper;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -52,6 +56,7 @@ public class TrainerController {
   private final ToggleTrainerActiveStatusCommand toggleTrainerActiveStatusCommand;
   private final AssignUserToTrainerCommand assignUserToTrainerCommand;
   private final TrainerMapper trainerMapper;
+  private final UserMapper userMapper;
   private final UpdateTrainerPasswordCommand updateTrainerPasswordCommand;
 
   @Operation(summary = "Crear un nuevo entrenador", description = "Permite crear un nuevo entrenador en el sistema.")
@@ -162,5 +167,30 @@ public class TrainerController {
     String trainerEmail = authentication.getName();
     updateTrainerPasswordCommand.execute(trainerEmail, request);
     return ResponseEntity.ok().build();
+  }
+
+  @Operation(summary = "Obtener usuarios asignados a un entrenador", description = "Devuelve todos los usuarios asignados a un entrenador específico.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
+      @ApiResponse(responseCode = "404", description = "Entrenador no encontrado", content = @Content(mediaType = "application/json"))
+  })
+  @GetMapping("/{trainerId}/users")
+  public ResponseEntity<List<UserProfileResponse>> getTrainerUsers(@PathVariable Long trainerId) {
+    // Verificar que el entrenador existe
+    Optional<Trainer> trainerOpt = getTrainerByIdCommand.execute(trainerId);
+    if (trainerOpt.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    }
+
+    // Obtener los usuarios asignados al entrenador
+    Trainer trainer = trainerOpt.get();
+    List<User> users = trainer.getUsers();
+
+    // Convertir a DTOs
+    List<UserProfileResponse> userResponses = users.stream()
+        .map(userMapper::convertToDTO)
+        .collect(Collectors.toList());
+
+    return ResponseEntity.ok(userResponses);
   }
 }
