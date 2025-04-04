@@ -46,7 +46,7 @@ public class SecurityConfig {
                     .permitAll()
                     // Endpoints protegidos por roles
                     .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
-                    .requestMatchers("/api/equipment/**").hasRole(Role.ADMIN.name())
+                    .requestMatchers("/api/equipment/**").hasAnyRole(Role.ADMIN.name(), Role.TRAINER.name())
                     .requestMatchers("/api/trainer/**").hasAnyRole(Role.ADMIN.name(), Role.TRAINER.name())
                     .requestMatchers("/api/user/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name(), Role.TRAINER.name())
                     // Resto de endpoints requieren autenticación
