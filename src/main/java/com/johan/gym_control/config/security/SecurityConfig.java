@@ -51,6 +51,7 @@ public class SecurityConfig {
                     .requestMatchers("/api/user/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name(), Role.TRAINER.name())
                     // Resto de endpoints requieren autenticación
                     .requestMatchers("/api/profile").authenticated()
+                    .requestMatchers("api/loans/**").authenticated()
                     .anyRequest().authenticated())
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
