@@ -26,5 +26,6 @@ public class TrainerCreateRequest {
   @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
   private String password;
 
+  @Builder.Default
   private Boolean isActive = true;
 }
