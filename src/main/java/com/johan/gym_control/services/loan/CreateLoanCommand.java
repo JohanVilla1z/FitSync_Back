@@ -5,10 +5,12 @@ import java.time.format.DateTimeFormatter;
 
 import org.springframework.stereotype.Service;
 
+import com.johan.gym_control.exceptions.BusinessRuleException;
 import com.johan.gym_control.models.Equipment;
 import com.johan.gym_control.models.Loan;
 import com.johan.gym_control.models.User;
 import com.johan.gym_control.models.dto.loan.LoanResponseDTO;
+import com.johan.gym_control.models.enums.EquipmentStatus;
 import com.johan.gym_control.models.enums.LoanStatus;
 import com.johan.gym_control.repositories.EquipmentRepository;
 import com.johan.gym_control.repositories.LoanRepository;
@@ -33,8 +35,8 @@ public class CreateLoanCommand {
     Equipment equipment = equipmentRepository.findById(equipmentId)
         .orElseThrow(() -> new IllegalArgumentException("Equipo no encontrado"));
 
-    if (!equipment.getEqAvailable()) {
-      throw new IllegalStateException("El equipo no está disponible");
+    if (equipment.getEqStatus() != EquipmentStatus.AVAILABLE) {
+      throw new BusinessRuleException("El equipo no está disponible para préstamo");
     }
 
     boolean hasPendingLoan = loanRepository.existsByUserAndEquipmentAndStatus(user, equipment, LoanStatus.PENDING);
@@ -42,7 +44,8 @@ public class CreateLoanCommand {
       throw new IllegalStateException("El usuario ya tiene un préstamo pendiente para este equipo");
     }
 
-    equipment.setEqAvailable(false);
+    equipment.setEqStatus(EquipmentStatus.LOANED);
+    equipment.setEqLoanCount(equipment.getEqLoanCount() + 1);
     equipmentRepository.save(equipment);
 
     Loan loan = new Loan();

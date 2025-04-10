@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.johan.gym_control.models.Equipment;
 import com.johan.gym_control.models.Loan;
+import com.johan.gym_control.models.enums.EquipmentStatus;
 import com.johan.gym_control.models.enums.LoanStatus;
 import com.johan.gym_control.repositories.EquipmentRepository;
 import com.johan.gym_control.repositories.LoanRepository;
@@ -32,7 +33,7 @@ public class CompleteLoanCommand {
     loan.setReturnDate(LocalDateTime.now());
 
     Equipment equipment = loan.getEquipment();
-    equipment.setEqAvailable(true);
+    equipment.setEqStatus(EquipmentStatus.AVAILABLE);
     equipmentRepository.save(equipment);
 
     return loanRepository.save(loan);
