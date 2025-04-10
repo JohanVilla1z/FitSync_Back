@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.johan.gym_control.models.Equipment;
+import com.johan.gym_control.models.enums.EquipmentStatus;
 import com.johan.gym_control.repositories.EquipmentRepository;
 import com.johan.gym_control.services.interfaces.ICommandParametrized;
 
@@ -21,7 +22,11 @@ public class ToggleEquipmentAvailabilityCommand implements ICommandParametrized<
         Optional<Equipment> equipmentOpt = equipmentRepository.findById(equipmentId);
         if (equipmentOpt.isPresent()) {
             Equipment equipment = equipmentOpt.get();
-            equipment.setEqAvailable(!equipment.getEqAvailable()); // Toggle the availability
+            if (equipment.getEqStatus() == EquipmentStatus.AVAILABLE) {
+                equipment.setEqStatus(EquipmentStatus.UNAVAILABLE);
+            } else {
+                equipment.setEqStatus(EquipmentStatus.AVAILABLE);
+            }
             equipmentRepository.save(equipment);
         }
         return null;
