@@ -5,6 +5,7 @@ import com.johan.gym_control.exceptions.InvalidStateException;
 import com.johan.gym_control.exceptions.ResourceNotFoundException;
 import com.johan.gym_control.models.EntryLog;
 import com.johan.gym_control.models.Equipment;
+import com.johan.gym_control.models.enums.EquipmentStatus;
 import com.johan.gym_control.repositories.EntryLogRepository;
 import com.johan.gym_control.repositories.EquipmentRepository;
 import com.johan.gym_control.services.interfaces.ICommandParametrized;
@@ -18,12 +19,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class UpdateEntryLogEquipmentCommand implements ICommandParametrized<EntryLog, UpdateEntryLogEquipmentCommand.UpdateEquipmentParams> {
+public class UpdateEntryLogEquipmentCommand
+    implements ICommandParametrized<EntryLog, UpdateEntryLogEquipmentCommand.UpdateEquipmentParams> {
 
   private final EntryLogRepository entryLogRepository;
   private final EquipmentRepository equipmentRepository;
 
-  public UpdateEntryLogEquipmentCommand(EntryLogRepository entryLogRepository, EquipmentRepository equipmentRepository) {
+  public UpdateEntryLogEquipmentCommand(EntryLogRepository entryLogRepository,
+      EquipmentRepository equipmentRepository) {
     this.entryLogRepository = entryLogRepository;
     this.equipmentRepository = equipmentRepository;
   }
@@ -32,7 +35,7 @@ public class UpdateEntryLogEquipmentCommand implements ICommandParametrized<Entr
   @Transactional
   public EntryLog execute(UpdateEquipmentParams params) {
     EntryLog entryLog = entryLogRepository.findById(params.getEntryLogId())
-            .orElseThrow(() -> new ResourceNotFoundException("Registro de entrada no encontrado"));
+        .orElseThrow(() -> new ResourceNotFoundException("Registro de entrada no encontrado"));
 
     // Validar tiempo límite (8 horas)
     Calendar calendar = Calendar.getInstance();
@@ -58,22 +61,22 @@ public class UpdateEntryLogEquipmentCommand implements ICommandParametrized<Entr
     Set<Equipment> newEquipment = new HashSet<>();
     for (Long eqId : params.getEquipmentIds()) {
       Equipment equipment = equipmentRepository.findById(eqId)
-              .orElseThrow(() -> new ResourceNotFoundException("Equipo no encontrado: " + eqId));
+          .orElseThrow(() -> new ResourceNotFoundException("Equipo no encontrado: " + eqId));
 
       // Validar disponibilidad (solo si no estaba ya prestado a este usuario)
-      if (!currentEquipment.contains(equipment) && !equipment.getEqAvailable()) {
+      if (!currentEquipment.contains(equipment) && equipment.getEqStatus() != EquipmentStatus.AVAILABLE) {
         throw new InvalidStateException("El equipo no está disponible: " + equipment.getEqName());
       }
 
       newEquipment.add(equipment);
-      equipment.setEqAvailable(false);
+      equipment.setEqStatus(EquipmentStatus.LOANED);
       equipmentRepository.save(equipment);
     }
 
     // Restaurar disponibilidad de equipos que ya no están prestados
     for (Equipment equipment : currentEquipment) {
       if (!newEquipment.contains(equipment)) {
-        equipment.setEqAvailable(true);
+        equipment.setEqStatus(EquipmentStatus.AVAILABLE);
         equipmentRepository.save(equipment);
       }
     }
