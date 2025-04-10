@@ -1,9 +1,10 @@
 package com.johan.gym_control.utils;
 
+import org.springframework.stereotype.Component;
+
 import com.johan.gym_control.models.Equipment;
 import com.johan.gym_control.models.dto.equipment.EquipmentRequestDTO;
 import com.johan.gym_control.models.dto.equipment.EquipmentResponseDTO;
-import org.springframework.stereotype.Component;
 
 @Component
 public class EquipmentMapper {
@@ -22,7 +23,7 @@ public class EquipmentMapper {
     Equipment equipment = new Equipment();
     equipment.setEqName(requestDTO.getName());
     equipment.setEqDescription(requestDTO.getDescription());
-    equipment.setEqAvailable(requestDTO.getAvailable());
+    equipment.setEqStatus(requestDTO.getStatus());
     return equipment;
   }
 
@@ -37,7 +38,14 @@ public class EquipmentMapper {
       return null;
     }
 
-    return EquipmentResponseDTO.builder().id(equipment.getEqId()).name(equipment.getEqName()).description(equipment.getEqDescription()).available(equipment.getEqAvailable()).currentLoans(equipment.getEntryLogs() != null ? equipment.getEntryLogs().size() : 0).build();
+    return EquipmentResponseDTO.builder()
+        .id(equipment.getEqId())
+        .name(equipment.getEqName())
+        .description(equipment.getEqDescription())
+        .status(equipment.getEqStatus())
+        .currentLoans(equipment.getEntryLogs() != null ? equipment.getEntryLogs().size() : 0)
+        .loanCount(equipment.getEqLoanCount())
+        .build();
   }
 
   /**
@@ -53,6 +61,6 @@ public class EquipmentMapper {
 
     equipment.setEqName(requestDTO.getName());
     equipment.setEqDescription(requestDTO.getDescription());
-    equipment.setEqAvailable(requestDTO.getAvailable());
+    equipment.setEqStatus(requestDTO.getStatus());
   }
 }
