@@ -1,0 +1,50 @@
+services:
+  - type: web
+    name: fitsync-api
+    runtime: docker
+    plan: free # Plan gratuito - cambia a starter si necesitas más recursos
+    rootDir: FitSync_Back
+    buildCommand: ./gradlew build -x test
+    startCommand: java -Xmx512m -jar build/libs/GymControl-0.0.1-SNAPSHOT.jar
+    healthCheckPath: /api/health
+    healthCheckTimeout: 100
+    numInstances: 1
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: JDBC_DATABASE_URL
+        sync: false # Aquí pondrás la URL de Railway
+      - key: JDBC_DATABASE_USERNAME
+        sync: false # Normalmente 'root' en Railway
+      - key: JDBC_DATABASE_PASSWORD
+        sync: false # La contraseña generada por Railway
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://fitsync.netlify.app
+      - key: SHOW_SQL
+        value: false
+      - key: FORMAT_SQL
+        value: false
+      - key: ENABLE_API_DOCS
+        value: true
+      - key: SEED_ADMIN_EMAIL
+        value: admin@fitsync.com
+      - key: SEED_ADMIN_PASSWORD
+        sync: false
+      - key: SEED_TRAINER_EMAIL
+        value: trainer@fitsync.com
+      - key: SEED_TRAINER_PASSWORD
+        sync: false
+      - key: SEED_USER_EMAIL
+        value: user@fitsync.com
+      - key: SEED_USER_PASSWORD
+        sync: false
+      - key: FORCE_SEED_DATA
+        value: "true"
+      - key: DB_MAX_POOL_SIZE
+        value: "8" # Ajustado para el plan gratuito de Railway
+      - key: DB_MIN_IDLE
+        value: "2" # Valor conservador para no agotar conexiones
