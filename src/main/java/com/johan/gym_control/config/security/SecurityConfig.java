@@ -1,5 +1,6 @@
 package com.johan.gym_control.config.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.CorsFilter;
 
 import com.johan.gym_control.models.enums.Role;
 import com.johan.gym_control.services.auth.CustomUserDetailsService;
@@ -26,35 +28,59 @@ public class SecurityConfig {
   private final CustomUserDetailsService userDetailsService;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+  @Autowired
+  private CorsFilter corsFilter;
+
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configure(http))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                    // Endpoints públicos
-                    .requestMatchers("/api/auth/**").permitAll()
-                    // Swagger UI y API Docs - permitir todas las rutas necesarias
-                    .requestMatchers(
-                            "/swagger-ui/**",
-                            "/swagger-ui.html",
-                            "/swagger-resources/**",
-                            "/v3/api-docs/**",
-                            "/api-docs/**",
-                            "/webjars/**")
-                    .permitAll()
-                    // Endpoints protegidos por roles
-                    .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
-                    .requestMatchers("/api/equipment/**").hasAnyRole(Role.ADMIN.name(), Role.TRAINER.name())
-                    .requestMatchers("/api/trainer/**").hasAnyRole(Role.ADMIN.name(), Role.TRAINER.name())
-                    .requestMatchers("/api/user/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name(), Role.TRAINER.name())
-                    // Resto de endpoints requieren autenticación
-                    .requestMatchers("/api/profile").authenticated()
-                    .requestMatchers("api/loans/**").authenticated()
-                    .anyRequest().authenticated())
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        // Deshabilitar CSRF ya que usamos JWT
+        .csrf(csrf -> csrf.disable())
+
+        // Configuración de CORS usando el filtro definido en WebConfig
+        .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+
+        // Configuración de encabezados de seguridad (versión actualizada)
+        .headers(headers -> headers
+            .contentSecurityPolicy(csp -> csp
+                .policyDirectives(
+                    "default-src 'self'; script-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline';")))
+
+        // Sin estado (stateless) - no usar sesiones
+        .sessionManagement(session -> session
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+        // Configuración de autorizaciones
+        .authorizeHttpRequests(auth -> auth
+            // Endpoints públicos
+            .requestMatchers("/api/auth/**").permitAll()
+
+            // Swagger UI y API Docs
+            .requestMatchers(
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/swagger-resources/**",
+                "/v3/api-docs/**",
+                "/api-docs/**",
+                "/webjars/**")
+            .permitAll()
+
+            // Endpoints protegidos por roles
+            .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
+            .requestMatchers("/api/equipment/**").hasAnyRole(Role.ADMIN.name(), Role.TRAINER.name())
+            .requestMatchers("/api/trainer/**").hasAnyRole(Role.ADMIN.name(), Role.TRAINER.name())
+            .requestMatchers("/api/user/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name(), Role.TRAINER.name())
+
+            // Endpoints que requieren autenticación
+            .requestMatchers("/api/profile").authenticated()
+            .requestMatchers("/api/loans/**").authenticated()
+
+            // Todo lo demás requiere autenticación
+            .anyRequest().authenticated())
+
+        // Proveedor de autenticación y filtro JWT
+        .authenticationProvider(authenticationProvider())
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }
