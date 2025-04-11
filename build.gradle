@@ -17,6 +17,14 @@ repositories {
     mavenCentral()
 }
 
+configurations.all {
+    resolutionStrategy {
+        // Forzar versiones específicas para evitar conflictos
+        force 'org.springframework:spring-core:6.1.4'
+        force 'org.springframework:spring-context:6.1.4'
+    }
+}
+
 dependencies {
     // Spring Boot starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -46,8 +54,22 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-compileJava {
+// Definir los atributos antes de resolver o consumir las configuraciones
+configurations {
+    implementation {
+        attributes.attribute(Attribute.of('org.gradle.dependency.bundling', String), 'external')
+    }
+    runtimeOnly {
+        attributes.attribute(Attribute.of('org.gradle.dependency.bundling', String), 'external')
+    }
+}
+
+// Para evitar errores con el comportamiento incubating de problema-reporting
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
     options.compilerArgs += ['-parameters']
+    // Añadir warning para APIs depreciadas
+    options.deprecation = true
 }
 
 tasks.named('test') {
