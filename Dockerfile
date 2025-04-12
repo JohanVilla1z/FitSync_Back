@@ -23,7 +23,7 @@ FROM eclipse-temurin:17-jre-alpine
 
 # Actualizar paquetes e instalar dependencias mínimas necesarias
 RUN apk update && apk upgrade && \
-  apk add --no-cache tzdata curl wget netcat-openbsd && \
+  apk add --no-cache tzdata curl && \
   rm -rf /var/cache/apk/*
 
 # Crear un usuario no privilegiado
@@ -32,10 +32,6 @@ RUN addgroup -g 1000 appuser && \
 
 WORKDIR /app
 VOLUME /tmp
-
-# Script para esperar a que MySQL esté disponible
-COPY --from=build /workspace/app/src/main/resources/wait-for-mysql.sh /app/
-RUN chmod +x /app/wait-for-mysql.sh
 
 # Copiar el JAR compilado directamente
 COPY --from=build /workspace/app/build/libs/*.jar app.jar
@@ -52,5 +48,5 @@ ENV JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom -XX:+UseContainerSupport 
 
 USER appuser
 
-# Usar el script para esperar a MySQL y luego iniciar la aplicación
-ENTRYPOINT ["sh", "-c", "/app/wait-for-mysql.sh && java $JAVA_OPTS -jar /app/app.jar"]
+# Iniciar la aplicación directamente sin esperar por MySQL
+ENTRYPOINT java $JAVA_OPTS -jar /app/app.jar
