@@ -47,4 +47,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
 # Configuración de seguridad adicional
 ENV JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 
-ENTRYPOINT ["java", "${JAVA_OPTS}", "-jar", "/app/app.jar"]
+# Usar shell form para que las variables de entorno se expandan correctamente
+ENTRYPOINT java $JAVA_OPTS -jar /app/app.jar
