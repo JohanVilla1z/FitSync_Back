@@ -2,6 +2,9 @@ package com.johan.gym_control.config;
 
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -19,6 +22,8 @@ import com.johan.gym_control.services.observers.IMCTrackingObserver;
 
 @Component
 public class DataSeeder implements CommandLineRunner {
+
+  private static final Logger logger = LoggerFactory.getLogger(DataSeeder.class);
 
   @Autowired
   private AdminRepository adminRepository;
@@ -58,18 +63,34 @@ public class DataSeeder implements CommandLineRunner {
 
   @Override
   public void run(String... args) {
-    // Solo ejecutar el seed en producción o si explícitamente se configura
+    logger.info("DataSeeder running with active profile: {}", activeProfile);
+    // Attempt seeding only if the database connection is likely available (though the root error suggests it's not)
+    // Seeding logic depends on successful repository bean creation.
     if (shouldSeedData()) {
-      seedAdminUser();
-      seedTrainerUser();
-      seedRegularUser();
+      logger.info("Attempting to seed data based on profile or environment variable.");
+      try {
+        seedAdminUser();
+        seedTrainerUser();
+        seedRegularUser();
+      } catch (Exception e) {
+        logger.error("Error during data seeding, likely due to DB connection issues: {}", e.getMessage());
+        // Log the root cause if available, which might be more informative
+        if (e.getCause() != null) {
+          logger.error("Data seeding root cause: {}", e.getCause().getMessage());
+        }
+      }
+    } else {
+      logger.info("Skipping data seeding based on active profile '{}'. Set profile to 'prod' or env var FORCE_SEED_DATA=true to enable.", activeProfile);
     }
   }
 
   private boolean shouldSeedData() {
-    return "prod".equals(activeProfile) ||
-        "heroku".equals(activeProfile) ||
-        "true".equals(System.getenv("FORCE_SEED_DATA"));
+    // Seed if profile is 'prod' OR if FORCE_SEED_DATA env var is explicitly 'true'
+    boolean forceSeed = "true".equalsIgnoreCase(System.getenv("FORCE_SEED_DATA"));
+    boolean isProdProfile = "prod".equals(activeProfile);
+    logger.debug("shouldSeedData check: activeProfile='{}', isProdProfile={}, FORCE_SEED_DATA='{}', forceSeed={}",
+                 activeProfile, isProdProfile, System.getenv("FORCE_SEED_DATA"), forceSeed);
+    return isProdProfile || forceSeed;
   }
 
   private void seedAdminUser() {
