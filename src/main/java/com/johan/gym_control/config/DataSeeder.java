@@ -64,7 +64,8 @@ public class DataSeeder implements CommandLineRunner {
   @Override
   public void run(String... args) {
     logger.info("DataSeeder running with active profile: {}", activeProfile);
-    // Attempt seeding only if the database connection is likely available (though the root error suggests it's not)
+    // Attempt seeding only if the database connection is likely available (though
+    // the root error suggests it's not)
     // Seeding logic depends on successful repository bean creation.
     if (shouldSeedData()) {
       logger.info("Attempting to seed data based on profile or environment variable.");
@@ -80,7 +81,9 @@ public class DataSeeder implements CommandLineRunner {
         }
       }
     } else {
-      logger.info("Skipping data seeding based on active profile '{}'. Set profile to 'prod' or env var FORCE_SEED_DATA=true to enable.", activeProfile);
+      logger.info(
+          "Skipping data seeding based on active profile '{}'. Set profile to 'prod' or env var FORCE_SEED_DATA=true to enable.",
+          activeProfile);
     }
   }
 
@@ -89,7 +92,7 @@ public class DataSeeder implements CommandLineRunner {
     boolean forceSeed = "true".equalsIgnoreCase(System.getenv("FORCE_SEED_DATA"));
     boolean isProdProfile = "prod".equals(activeProfile);
     logger.debug("shouldSeedData check: activeProfile='{}', isProdProfile={}, FORCE_SEED_DATA='{}', forceSeed={}",
-                 activeProfile, isProdProfile, System.getenv("FORCE_SEED_DATA"), forceSeed);
+        activeProfile, isProdProfile, System.getenv("FORCE_SEED_DATA"), forceSeed);
     return isProdProfile || forceSeed;
   }
 
