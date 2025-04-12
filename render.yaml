@@ -53,5 +53,4 @@ services:
         value: "8"
       - key: DB_MIN_IDLE
         value: "2"
-      - key: SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT
-        value: org.hibernate.dialect.MySQL8Dialect
+      # Removed deprecated dialect configuration
