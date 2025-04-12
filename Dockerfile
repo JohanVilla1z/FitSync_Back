@@ -23,7 +23,7 @@ FROM eclipse-temurin:17-jre-alpine
 
 # Actualizar paquetes e instalar dependencias mínimas necesarias
 RUN apk update && apk upgrade && \
-  apk add --no-cache tzdata && \
+  apk add --no-cache tzdata curl wget netcat-openbsd && \
   rm -rf /var/cache/apk/*
 
 # Crear un usuario no privilegiado
@@ -33,12 +33,15 @@ RUN addgroup -g 1000 appuser && \
 WORKDIR /app
 VOLUME /tmp
 
+# Script para esperar a que MySQL esté disponible
+COPY --from=build /workspace/app/src/main/resources/wait-for-mysql.sh /app/
+RUN chmod +x /app/wait-for-mysql.sh
+
 # Copiar el JAR compilado directamente
 COPY --from=build /workspace/app/build/libs/*.jar app.jar
 
 # Configurar permisos apropiados
 RUN chown -R appuser:appuser /app
-USER appuser
 
 # Healthcheck para verificar que la aplicación esté funcionando
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
@@ -47,5 +50,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
 # Configuración de seguridad adicional
 ENV JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 
-# Usar shell form para que las variables de entorno se expandan correctamente
-ENTRYPOINT java $JAVA_OPTS -jar /app/app.jar
+USER appuser
+
+# Usar el script para esperar a MySQL y luego iniciar la aplicación
+ENTRYPOINT ["sh", "-c", "/app/wait-for-mysql.sh && java $JAVA_OPTS -jar /app/app.jar"]
