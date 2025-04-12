@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-alpine3.18 AS build
+FROM eclipse-temurin:17-jdk-alpine AS build
 
 # Actualizar paquetes e instalar dependencias necesarias
 RUN apk update && apk upgrade && \
@@ -20,7 +20,7 @@ RUN ./gradlew build -x test
 RUN mkdir -p build/dependency && (cd build/dependency; jar -xf ../libs/*.jar)
 
 # Etapa final con JRE más ligero
-FROM eclipse-temurin:17-jre-alpine3.18
+FROM eclipse-temurin:17-jre-alpine
 
 # Actualizar paquetes e instalar dependencias mínimas necesarias
 RUN apk update && apk upgrade && \
