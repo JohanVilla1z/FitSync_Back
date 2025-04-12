@@ -14,18 +14,19 @@ services:
         value: 8080
       - key: SPRING_PROFILES_ACTIVE
         value: prod
-      - key: JDBC_DATABASE_URL
-        fromDatabase:
-          name: fitsync-db
-          property: connectionString
-      - key: JDBC_DATABASE_USERNAME
-        fromDatabase:
-          name: fitsync-db
-          property: user
-      - key: JDBC_DATABASE_PASSWORD
-        fromDatabase:
-          name: fitsync-db
-          property: password
+      # Railway MySQL credentials
+      - key: MYSQL_URL
+        value: mysql://root:PbIMLMttlmwNacZkHDAESMiCMLlHdwcK@ballast.proxy.rlwy.net:49794/railway
+      - key: MYSQLDATABASE
+        value: railway
+      - key: MYSQLHOST
+        value: ballast.proxy.rlwy.net
+      - key: MYSQLPORT
+        value: 49794
+      - key: MYSQLUSER
+        value: root
+      - key: MYSQLPASSWORD
+        value: PbIMLMttlmwNacZkHDAESMiCMLlHdwcK
       - key: JWT_SECRET
         generateValue: true
       - key: ALLOWED_ORIGINS
@@ -51,12 +52,8 @@ services:
       - key: FORCE_SEED_DATA
         value: "true"
       - key: DB_MAX_POOL_SIZE
-        value: "8" # Ajustado para el plan gratuito de Railway
+        value: "8"
       - key: DB_MIN_IDLE
-        value: "2" # Valor conservador para no agotar conexiones
-
-databases:
-  - name: fitsync-db
-    plan: free
-    databaseName: gym_control
-    ipAllowList: [] # permite el acceso desde cualquier lugar
+        value: "2"
+      - key: SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT
+        value: org.hibernate.dialect.MySQL8Dialect
