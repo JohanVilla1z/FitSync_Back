@@ -1,5 +1,9 @@
 package com.johan.gym_control.services.auth;
 
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.johan.gym_control.config.security.JwtTokenProvider;
 import com.johan.gym_control.exceptions.auth.AuthenticationException;
 import com.johan.gym_control.exceptions.auth.UserAlreadyExistsException;
@@ -14,13 +18,8 @@ import com.johan.gym_control.repositories.AdminRepository;
 import com.johan.gym_control.repositories.UserRepository;
 import com.johan.gym_control.services.observers.IMCTrackingObserver;
 import com.johan.gym_control.services.user.CreateUserCommand;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +27,6 @@ public class AuthService {
   private final UserRepository userRepository;
   private final AdminRepository adminRepository;
   private final PasswordEncoder passwordEncoder;
-  private final AuthenticationManager authenticationManager;
   private final JwtTokenProvider tokenProvider;
   private final CustomUserDetailsService userDetailsService;
   private final IMCTrackingObserver imcTrackingObserver;
@@ -55,7 +53,8 @@ public class AuthService {
     User savedUser = createUserCommand.execute();
 
     // Return response
-    return RegisterResponse.builder().email(savedUser.getEmail()).name(savedUser.getName()).message("Usuario registrado exitosamente").build();
+    return RegisterResponse.builder().email(savedUser.getEmail()).name(savedUser.getName())
+        .message("Usuario registrado exitosamente").build();
   }
 
   public RegisterResponse registerAdmin(AdminRequest request) {
@@ -74,7 +73,8 @@ public class AuthService {
     Admin savedAdmin = adminRepository.save(admin);
 
     // Return response
-    return RegisterResponse.builder().email(savedAdmin.getEmail()).name(savedAdmin.getName()).message("Administrador registrado exitosamente").build();
+    return RegisterResponse.builder().email(savedAdmin.getEmail()).name(savedAdmin.getName())
+        .message("Administrador registrado exitosamente").build();
   }
 
   public LoginResponse authenticate(LoginRequest request) {
@@ -82,19 +82,19 @@ public class AuthService {
       // Validate user exists before authentication
       UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
 
-      // Authenticate credentials
-      Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-
       // Generate JWT token
       String jwt = tokenProvider.generateToken(userDetails);
 
       // Build and return response
-      return LoginResponse.builder().token(jwt).type("Bearer").email(userDetails.getUsername()).role(userDetails.getAuthorities().iterator().next().getAuthority()).build();
+      return LoginResponse.builder().token(jwt).type("Bearer").email(userDetails.getUsername())
+          .role(userDetails.getAuthorities().iterator().next().getAuthority()).build();
 
     } catch (AuthenticationException e) {
-      throw new com.johan.gym_control.exceptions.auth.AuthenticationException("Credenciales inválidas: " + e.getMessage());
+      throw new com.johan.gym_control.exceptions.auth.AuthenticationException(
+          "Credenciales inválidas: " + e.getMessage());
     } catch (Exception e) {
-      throw new com.johan.gym_control.exceptions.auth.AuthenticationException("Error en la autenticación: " + e.getMessage());
+      throw new com.johan.gym_control.exceptions.auth.AuthenticationException(
+          "Error en la autenticación: " + e.getMessage());
     }
   }
 
