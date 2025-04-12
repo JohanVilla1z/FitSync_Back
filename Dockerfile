@@ -17,7 +17,6 @@ RUN chmod +x ./gradlew
 
 # Construir la aplicación
 RUN ./gradlew build -x test
-RUN mkdir -p build/dependency && (cd build/dependency; jar -xf ../libs/*.jar)
 
 # Etapa final con JRE más ligero
 FROM eclipse-temurin:17-jre-alpine
@@ -34,11 +33,8 @@ RUN addgroup -g 1000 appuser && \
 WORKDIR /app
 VOLUME /tmp
 
-# Copiar los archivos compilados desde la etapa de build
-ARG DEPENDENCY=/workspace/app/build/dependency
-COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
-COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
+# Copiar el JAR compilado directamente
+COPY --from=build /workspace/app/build/libs/*.jar app.jar
 
 # Configurar permisos apropiados
 RUN chown -R appuser:appuser /app
@@ -51,4 +47,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
 # Configuración de seguridad adicional
 ENV JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 
-ENTRYPOINT ["java","-cp","app:app/lib/*","com.johan.gym_control.GymControlApplication"]
+ENTRYPOINT ["java", "${JAVA_OPTS}", "-jar", "/app/app.jar"]
