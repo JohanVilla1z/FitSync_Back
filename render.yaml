@@ -15,11 +15,17 @@ services:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
       - key: JDBC_DATABASE_URL
-        sync: false # Aquí pondrás la URL de Railway
+        fromDatabase:
+          name: fitsync-db
+          property: connectionString
       - key: JDBC_DATABASE_USERNAME
-        sync: false # Normalmente 'root' en Railway
+        fromDatabase:
+          name: fitsync-db
+          property: user
       - key: JDBC_DATABASE_PASSWORD
-        sync: false # La contraseña generada por Railway
+        fromDatabase:
+          name: fitsync-db
+          property: password
       - key: JWT_SECRET
         generateValue: true
       - key: ALLOWED_ORIGINS
@@ -48,3 +54,9 @@ services:
         value: "8" # Ajustado para el plan gratuito de Railway
       - key: DB_MIN_IDLE
         value: "2" # Valor conservador para no agotar conexiones
+
+databases:
+  - name: fitsync-db
+    plan: free
+    databaseName: gym_control
+    ipAllowList: [] # permite el acceso desde cualquier lugar
