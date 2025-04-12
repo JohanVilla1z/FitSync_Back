@@ -15,14 +15,12 @@ services:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
       # Railway MySQL credentials
-      - key: MYSQL_URL
-        value: mysql://root:PbIMLMttlmwNacZkHDAESMiCMLlHdwcK@ballast.proxy.rlwy.net:49794/railway
-      - key: MYSQLDATABASE
-        value: railway
       - key: MYSQLHOST
         value: ballast.proxy.rlwy.net
       - key: MYSQLPORT
         value: 49794
+      - key: MYSQLDATABASE
+        value: railway
       - key: MYSQLUSER
         value: root
       - key: MYSQLPASSWORD
