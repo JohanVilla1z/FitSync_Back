@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.2.3' // Versión estable actual
+    id 'org.springframework.boot' version '3.1.10' // Versión estable actual
     id 'io.spring.dependency-management' version '1.1.4'
 }
 
