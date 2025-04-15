@@ -31,7 +31,6 @@ RUN addgroup -g 1000 appuser && \
   adduser -u 1000 -G appuser -h /app -s /sbin/nologin -D appuser
 
 WORKDIR /app
-VOLUME /tmp
 
 # Copiar el JAR compilado directamente
 COPY --from=build /workspace/app/build/libs/*.jar app.jar
