@@ -1,51 +1,76 @@
-FROM eclipse-temurin:17-jdk-alpine AS build
+# Stage 1: Build the application using JDK
+# Using a specific version can improve build reproducibility
+FROM eclipse-temurin:17.0.10_7-jdk-alpine AS build
 
-# Actualizar paquetes e instalar dependencias necesarias
+WORKDIR /workspace/app
+
+# Install necessary tools in one layer and clean up apk cache
 RUN apk update && apk upgrade && \
   apk add --no-cache curl bash && \
   rm -rf /var/cache/apk/*
 
-WORKDIR /workspace/app
-
-# Copiar archivos del proyecto
+# Copy Gradle wrapper files first to leverage Docker cache
 COPY gradle gradle
-COPY build.gradle settings.gradle gradlew ./
-COPY src src
-
-# Dar permisos de ejecución al gradlew
+COPY gradlew ./
 RUN chmod +x ./gradlew
 
-# Construir la aplicación
-RUN ./gradlew build -x test
+# Copy build configuration files
+COPY build.gradle settings.gradle ./
 
-# Etapa final con JRE más ligero
-FROM eclipse-temurin:17-jre-alpine
+# Consider downloading dependencies as a separate layer if needed for caching,
+# but build includes dependency resolution anyway.
+# RUN ./gradlew dependencies --no-daemon
 
-# Actualizar paquetes e instalar dependencias mínimas necesarias
+# Copy source code
+COPY src src
+
+# Build the application, skip tests.
+# Using --no-daemon might save some memory during build in constrained environments.
+RUN ./gradlew build -x test --no-daemon
+
+# Stage 2: Create the final lightweight runtime image using JRE
+# Using a specific version can improve build reproducibility
+FROM eclipse-temurin:17.0.10_7-jre-alpine
+
+# Install minimal runtime dependencies and clean up apk cache
 RUN apk update && apk upgrade && \
   apk add --no-cache tzdata curl && \
   rm -rf /var/cache/apk/*
 
-# Crear un usuario no privilegiado
+# Create a non-root user and group for security
 RUN addgroup -g 1000 appuser && \
   adduser -u 1000 -G appuser -h /app -s /sbin/nologin -D appuser
 
 WORKDIR /app
 
-# Copiar el JAR compilado directamente
-COPY --from=build /workspace/app/build/libs/*.jar app.jar
+# Copy the built JAR from the build stage
+# Using a more specific pattern avoids potential issues if multiple JARs exist
+COPY --from=build /workspace/app/build/libs/*-SNAPSHOT.jar app.jar
 
-# Configurar permisos apropiados
+# Set ownership for the app directory to the non-root user
 RUN chown -R appuser:appuser /app
 
-# Healthcheck para verificar que la aplicación esté funcionando
-HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:${PORT:-8080}/api/health || exit 1
-
-# Configuración de seguridad adicional
-ENV JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
-
+# Switch to the non-root user
 USER appuser
 
-# Iniciar la aplicación directamente sin esperar por MySQL
+# Set default port (Railway will override this with its PORT variable, but good for local testing)
+ENV PORT=8080
+
+# Configure JVM options for containerized environment:
+# - UseContainerSupport: Essential for JVM to respect container memory limits.
+# - MaxRAMPercentage=60.0: **REDUCED** Limit heap size to 60% of container memory (Crucial for 500MB limit). Adjust if needed (e.g., 50.0).
+# - egd: Improve startup time by using non-blocking entropy source.
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Djava.security.egd=file:/dev/./urandom"
+
+# Healthcheck to verify application status (ensure /api/health exists and returns 2xx)
+# Increased start-period slightly to give more time for Spring Boot startup in limited env.
+# Increased timeout slightly.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=3 \
+  CMD curl -f http://localhost:${PORT}/api/health || exit 1
+
+# Expose the port the application will run on (informational, Railway handles actual exposure)
+EXPOSE ${PORT}
+
+# Entrypoint to run the application, using the configured JAVA_OPTS
+# This form ensures JAVA_OPTS is expanded by the shell before executing java
 ENTRYPOINT java $JAVA_OPTS -jar /app/app.jar
