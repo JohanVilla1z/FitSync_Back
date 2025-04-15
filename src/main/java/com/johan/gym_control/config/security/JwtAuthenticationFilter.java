@@ -29,9 +29,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(HttpServletRequest request,
-                                  HttpServletResponse response,
-                                  FilterChain filterChain)
-          throws ServletException, IOException {
+      HttpServletResponse response,
+      FilterChain filterChain)
+      throws ServletException, IOException {
     try {
       String jwt = getJwtFromRequest(request);
 
@@ -44,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (userDetails != null && role != null) {
           UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                  userDetails, null, Collections.singleton(() -> "ROLE_" + role));
+              userDetails, null, Collections.singleton(() -> "ROLE_" + role));
           authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
           SecurityContextHolder.getContext().setAuthentication(authentication);
         }

@@ -33,12 +33,12 @@ public class JwtTokenProvider {
     Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
     return Jwts.builder()
-            .setSubject(userDetails.getUsername())
-            .setIssuedAt(now)
-            .setExpiration(expiryDate)
-            .signWith(getSigningKey())
-            .addClaims(Map.of("role", userDetails.getAuthorities().iterator().next().getAuthority()))
-            .compact();
+        .setSubject(userDetails.getUsername())
+        .setIssuedAt(now)
+        .setExpiration(expiryDate)
+        .signWith(getSigningKey())
+        .addClaims(Map.of("role", userDetails.getAuthorities().iterator().next().getAuthority()))
+        .compact();
   }
 
   public String getUsernameFromToken(String token) {
