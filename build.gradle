@@ -17,14 +17,6 @@ repositories {
     mavenCentral()
 }
 
-configurations.all {
-    resolutionStrategy {
-        // Forzar versiones específicas para evitar conflictos
-        force 'org.springframework:spring-core:6.1.4'
-        force 'org.springframework:spring-context:6.1.4'
-    }
-}
-
 dependencies {
     // Spring Boot starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -32,7 +24,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
     
     // Resilience4j para rate limiting y circuit breaking
     implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.1.0'
