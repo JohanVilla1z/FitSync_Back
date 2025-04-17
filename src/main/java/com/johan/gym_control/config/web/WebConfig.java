@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -16,22 +15,22 @@ public class WebConfig {
 
   private static final Logger logger = LoggerFactory.getLogger(WebConfig.class);
 
-  @Value("${spring.mvc.cors.allowed-origins:http://localhost:5173}")
-  private String allowedOrigins;
-
   @Bean
   public CorsFilter corsFilter() {
-    logger.info("Configuring CorsFilter. Allowed origins from environment/property: {}", allowedOrigins);
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     CorsConfiguration config = new CorsConfiguration();
-
-    config.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+    // Permitir ambos orígenes: producción y desarrollo local
+    config.setAllowedOrigins(Arrays.asList(
+        "https://fitsyncapp.netlify.app",
+        "http://localhost:5173"));
+    config.setAllowedHeaders(Arrays.asList("*"));
     config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
     config.setExposedHeaders(Arrays.asList("Authorization"));
     config.setAllowCredentials(true);
     config.setMaxAge(3600L);
 
+    logger.info("Configuring CorsFilter. Allowed origins: {}", config.getAllowedOrigins());
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", config);
     return new CorsFilter(source);
   }
