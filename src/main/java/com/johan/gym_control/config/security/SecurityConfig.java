@@ -1,5 +1,7 @@
 package com.johan.gym_control.config.security;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,6 +36,8 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
+        // Activar la protección CSRF (Cross-Site Request Forgery)
+        .cors(withDefaults())
         // Deshabilitar CSRF ya que usamos JWT
         .csrf(csrf -> csrf.disable())
 
