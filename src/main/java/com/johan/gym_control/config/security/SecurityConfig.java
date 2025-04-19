@@ -16,7 +16,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.filter.CorsFilter;
 
 import com.johan.gym_control.models.enums.Role;
 import com.johan.gym_control.services.auth.CustomUserDetailsService;
@@ -30,9 +29,6 @@ public class SecurityConfig {
   private final CustomUserDetailsService userDetailsService;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-  @Autowired
-  private CorsFilter corsFilter;
-
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
@@ -42,7 +38,7 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable())
 
         // Configuración de CORS usando el filtro definido en WebConfig
-        .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+        // .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
 
         // Configuración de encabezados de seguridad (versión actualizada)
         .headers(headers -> headers
