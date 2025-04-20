@@ -63,12 +63,21 @@ public class EquipmentController {
   })
   @GetMapping
   public ResponseEntity<List<EquipmentResponseDTO>> getAllEquipment() {
-    GetAllEquipmentCommand getAllCommand = new GetAllEquipmentCommand(equipmentRepository);
-    List<Equipment> equipments = getAllCommand.execute();
-    List<EquipmentResponseDTO> equipmentDTOs = equipments.stream()
-        .map(equipmentMapper::toDto)
-        .collect(Collectors.toList());
-    return ResponseEntity.ok(equipmentDTOs);
+    try {
+      GetAllEquipmentCommand getAllCommand = new GetAllEquipmentCommand(equipmentRepository);
+      List<Equipment> equipments = getAllCommand.execute();
+      List<EquipmentResponseDTO> equipmentDTOs = equipments.stream()
+          .map(equipmentMapper::toDto)
+          .collect(Collectors.toList());
+      return ResponseEntity.ok(equipmentDTOs);
+    } catch (Exception e) {
+      // Log the exception if you have a logger, e.g., log.error("Error fetching
+      // equipment", e);
+      String errorJson = "{\"error\": \"Internal Server Error: " + e.getMessage() + "\"}";
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .header("Content-Type", "application/json")
+          .body(null); // Optionally, you can return a ResponseEntity with a body containing errorJson
+    }
   }
 
   @Operation(summary = "Obtener un equipo por su ID", description = "Devuelve los detalles de un equipo específico.")
