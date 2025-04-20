@@ -11,10 +11,10 @@ public class WebConfig implements WebMvcConfigurer {
   @Override
   public void addCorsMappings(@NonNull CorsRegistry registry) {
     registry.addMapping("/**")
-        .allowedOrigins("*") // Permite cualquier origen
-        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        .allowedOrigins("https://fitsyncapp.netlify.app", "http://localhost:5173")
+        .allowedMethods("*")
         .allowedHeaders("*")
-        .allowCredentials(false); // No se permiten credenciales con '*'
+        .allowCredentials(true);
   }
 
   // CorsFilter eliminado para desactivar protección CORS personalizada
