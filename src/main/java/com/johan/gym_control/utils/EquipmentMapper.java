@@ -21,6 +21,7 @@ public class EquipmentMapper {
     }
 
     Equipment equipment = new Equipment();
+    equipment.setEqId(requestDTO.getId());
     equipment.setEqName(requestDTO.getName());
     equipment.setEqDescription(requestDTO.getDescription());
     equipment.setEqStatus(requestDTO.getStatus());
@@ -59,8 +60,11 @@ public class EquipmentMapper {
       return;
     }
 
-    equipment.setEqName(requestDTO.getName());
-    equipment.setEqDescription(requestDTO.getDescription());
-    equipment.setEqStatus(requestDTO.getStatus());
+    if (requestDTO.getName() != null)
+      equipment.setEqName(requestDTO.getName());
+    if (requestDTO.getDescription() != null)
+      equipment.setEqDescription(requestDTO.getDescription());
+    if (requestDTO.getStatus() != null)
+      equipment.setEqStatus(requestDTO.getStatus());
   }
 }

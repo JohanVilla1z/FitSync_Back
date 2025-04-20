@@ -4,6 +4,7 @@ import com.johan.gym_control.models.enums.EquipmentStatus;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EquipmentRequestDTO {
+
+  @Null(message = "El id debe ser nulo al crear un equipo")
+  private Long id;
 
   @NotBlank(message = "El nombre del equipo no puede estar vacío")
   @Size(min = 2, max = 100, message = "El nombre del equipo debe tener entre 2 y 100 caracteres")
