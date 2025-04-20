@@ -71,12 +71,11 @@ public class EquipmentController {
           .collect(Collectors.toList());
       return ResponseEntity.ok(equipmentDTOs);
     } catch (Exception e) {
-      // Log the exception if you have a logger, e.g., log.error("Error fetching
-      // equipment", e);
+      e.printStackTrace();
       String errorJson = "{\"error\": \"Internal Server Error: " + e.getMessage() + "\"}";
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .header("Content-Type", "application/json")
-          .body(null); // Optionally, you can return a ResponseEntity with a body containing errorJson
+          .body(null);
     }
   }
 
