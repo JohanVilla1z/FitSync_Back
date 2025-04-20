@@ -11,7 +11,7 @@ public class TrainerResponseDTO {
   private Long id;
   private String name;
   private String email;
-  private boolean isActive;
-  private boolean isAvailable;
+  private boolean active;
+  private boolean available;
   private List<Long> userIds;
 }

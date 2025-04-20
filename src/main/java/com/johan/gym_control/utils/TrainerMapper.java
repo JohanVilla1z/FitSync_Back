@@ -15,8 +15,8 @@ public class TrainerMapper {
             .id(trainer.getId())
             .name(trainer.getName())
             .email(trainer.getEmail())
-            .isActive(trainer.getIsActive())
-            .isAvailable(trainer.isTrainerAvailable())  // Agregamos esta línea
+            .active(trainer.getIsActive())
+            .available(trainer.isTrainerAvailable())
             .userIds(trainer.getUsers().stream().map(User::getId).collect(Collectors.toList()))
             .build();
   }

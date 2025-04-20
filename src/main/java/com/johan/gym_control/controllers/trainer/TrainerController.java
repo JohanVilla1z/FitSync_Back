@@ -108,7 +108,6 @@ public class TrainerController {
     return getTrainerByIdCommand.execute(id)
         .map(trainer -> {
           TrainerResponseDTO dto = trainerMapper.convertToDTO(trainer);
-          dto.setAvailable(trainer.isTrainerAvailable());
           return ResponseEntity.ok(dto);
         })
         .orElse(ResponseEntity.notFound().build());
@@ -118,11 +117,7 @@ public class TrainerController {
   public ResponseEntity<List<TrainerResponseDTO>> getAllTrainers() {
     List<Trainer> trainers = getAllTrainersCommand.execute();
     List<TrainerResponseDTO> dtos = trainers.stream()
-        .map(trainer -> {
-          TrainerResponseDTO dto = trainerMapper.convertToDTO(trainer);
-          dto.setAvailable(trainer.isTrainerAvailable());
-          return dto;
-        })
+        .map(trainerMapper::convertToDTO)
         .collect(Collectors.toList());
     return ResponseEntity.ok(dtos);
   }
