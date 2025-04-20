@@ -14,8 +14,7 @@ public class WebConfig implements WebMvcConfigurer {
         .allowedOrigins(
             "https://fitsyncapp.netlify.app",
             "http://localhost:5173",
-            "https://worthy-warmth-production.up.railway.app"
-        )
+            "https://worthy-warmth-production.up.railway.app")
         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
         .allowedHeaders("*")
         .allowCredentials(true)

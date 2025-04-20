@@ -31,30 +31,16 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
-        // Activar la protección CSRF (Cross-Site Request Forgery)
         .cors(withDefaults())
-        // Deshabilitar CSRF ya que usamos JWT
         .csrf(csrf -> csrf.disable())
-
-        // Configuración de CORS usando el filtro definido en WebConfig
-        // .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-
-        // Configuración de encabezados de seguridad (versión actualizada)
         .headers(headers -> headers
             .contentSecurityPolicy(csp -> csp
                 .policyDirectives(
                     "default-src 'self'; script-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline';")))
-
-        // Sin estado (stateless) - no usar sesiones
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-        // Configuración de autorizaciones
         .authorizeHttpRequests(auth -> auth
-            // Endpoints públicos
             .requestMatchers("/api/auth/**").permitAll()
-
-            // Swagger UI y API Docs
             .requestMatchers(
                 "/swagger-ui/**",
                 "/swagger-ui.html",
@@ -63,21 +49,13 @@ public class SecurityConfig {
                 "/api-docs/**",
                 "/webjars/**")
             .permitAll()
-
-            // Endpoints protegidos por roles
             .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
             .requestMatchers("/api/equipment/**").hasAnyRole(Role.ADMIN.name(), Role.TRAINER.name())
             .requestMatchers("/api/trainer/**").hasAnyRole(Role.ADMIN.name(), Role.TRAINER.name())
             .requestMatchers("/api/user/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name(), Role.TRAINER.name())
-
-            // Endpoints que requieren autenticación
             .requestMatchers("/api/profile").authenticated()
             .requestMatchers("/api/loans/**").authenticated()
-
-            // Todo lo demás requiere autenticación
             .anyRequest().authenticated())
-
-        // Proveedor de autenticación y filtro JWT
         .authenticationProvider(authenticationProvider())
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
