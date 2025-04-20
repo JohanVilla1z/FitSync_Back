@@ -58,9 +58,9 @@ ENV PORT=8080
 
 # Configure JVM options for containerized environment:
 # - UseContainerSupport: Essential for JVM to respect container memory limits.
-# - MaxRAMPercentage=60.0: **REDUCED** Limit heap size to 60% of container memory (Crucial for 500MB limit). Adjust if needed (e.g., 50.0).
+# - MaxRAMPercentage=40.0: Limita el heap a 40% de la RAM del contenedor (mejor para 512MB o menos).
 # - egd: Improve startup time by using non-blocking entropy source.
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Djava.security.egd=file:/dev/./urandom"
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=40.0 -Djava.security.egd=file:/dev/./urandom"
 
 # Healthcheck to verify application status (ensure /api/health exists and returns 2xx)
 # Increased start-period slightly to give more time for Spring Boot startup in limited env.
