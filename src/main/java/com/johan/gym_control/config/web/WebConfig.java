@@ -17,6 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
             "https://worthy-warmth-production.up.railway.app")
         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
         .allowedHeaders("*")
+        .exposedHeaders("*")
         .allowCredentials(true)
         .maxAge(3600);
   }
