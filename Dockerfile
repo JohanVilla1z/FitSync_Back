@@ -56,8 +56,8 @@ USER appuser
 # Set default port (Railway will override this with its PORT variable, but good for local testing)
 ENV PORT=8080
 
-# Limita el heap de la JVM al 30% de la RAM del contenedor y reduce el número de threads de Tomcat
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=30.0 -Djava.security.egd=file:/dev/./urandom -Dserver.tomcat.max-threads=20"
+# Limita el heap de la JVM al 20% de la RAM del contenedor y reduce el número de threads de Tomcat
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=20.0 -XX:MaxMetaspaceSize=64m -Xss256k -Djava.security.egd=file:/dev/./urandom -Dserver.tomcat.max-threads=10"
 
 # Healthcheck to verify application status (ensure /api/health exists and returns 2xx)
 # Increased start-period slightly to give more time for Spring Boot startup in limited env.
