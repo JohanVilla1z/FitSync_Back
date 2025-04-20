@@ -4,7 +4,6 @@ import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -12,10 +11,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.johan.gym_control.models.Admin;
+import com.johan.gym_control.models.Equipment;
 import com.johan.gym_control.models.Trainer;
 import com.johan.gym_control.models.User;
+import com.johan.gym_control.models.enums.EquipmentStatus;
 import com.johan.gym_control.models.enums.Role;
 import com.johan.gym_control.repositories.AdminRepository;
+import com.johan.gym_control.repositories.EquipmentRepository;
 import com.johan.gym_control.repositories.TrainerRepository;
 import com.johan.gym_control.repositories.UserRepository;
 import com.johan.gym_control.services.observers.IMCTrackingObserver;
@@ -39,6 +41,9 @@ public class DataSeeder implements CommandLineRunner {
 
   @Autowired
   private IMCTrackingObserver imcTrackingObserver;
+
+  @Autowired
+  private EquipmentRepository equipmentRepository;
 
   @Value("${seed.admin.email:admin@fitsync.com}")
   private String adminEmail;
@@ -73,6 +78,7 @@ public class DataSeeder implements CommandLineRunner {
         seedAdminUser();
         seedTrainerUser();
         seedRegularUser();
+        seedDefaultEquipment();
       } catch (Exception e) {
         logger.error("Error during data seeding, likely due to DB connection issues: {}", e.getMessage());
         // Log the root cause if available, which might be more informative
@@ -140,6 +146,21 @@ public class DataSeeder implements CommandLineRunner {
 
       userRepository.save(user);
       System.out.println("Usuario regular creado: " + userEmail);
+    }
+  }
+
+  private void seedDefaultEquipment() {
+    String defaultName = "Colchoneta de entrenamiento";
+    if (equipmentRepository.findAll().stream().noneMatch(e -> defaultName.equalsIgnoreCase(e.getEqName()))) {
+      Equipment equipment = new Equipment();
+      equipment.setEqName(defaultName);
+      equipment.setEqDescription("Colchoneta ideal para ejercicios de suelo y estiramientos.");
+      equipment.setEqStatus(EquipmentStatus.AVAILABLE);
+      equipment.setEqAvailable(true);
+      equipment.setEqLoanCount(0);
+      // entryLogs se deja vacío por defecto
+      equipmentRepository.save(equipment);
+      System.out.println("Equipo creado: " + defaultName);
     }
   }
 }
