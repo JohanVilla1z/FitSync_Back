@@ -11,7 +11,11 @@ public class WebConfig implements WebMvcConfigurer {
   @Override
   public void addCorsMappings(@NonNull CorsRegistry registry) {
     registry.addMapping("/**")
-        .allowedOrigins("https://fitsyncapp.netlify.app", "http://localhost:5173")
+        .allowedOrigins(
+            "https://fitsyncapp.netlify.app",
+            "http://localhost:5173",
+            "https://worthy-warmth-production.up.railway.app"
+        )
         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
         .allowedHeaders("*")
         .allowCredentials(true)
@@ -28,21 +32,23 @@ public class WebConfig implements WebMvcConfigurer {
 // Si no tienes SecurityConfig, crea una clase así:
 
 /*
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
-
-@Configuration
-public class SecurityConfig {
-  @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-      .cors() // Habilita CORS usando la configuración de WebMvcConfigurer
-      .and()
-      .csrf().disable()
-      // ...otras configuraciones de seguridad...
-      ;
-    return http.build();
-  }
-}
-*/
+ * import org.springframework.context.annotation.Bean;
+ * import
+ * org.springframework.security.config.annotation.web.builders.HttpSecurity;
+ * import org.springframework.security.web.SecurityFilterChain;
+ * 
+ * @Configuration
+ * public class SecurityConfig {
+ * 
+ * @Bean
+ * public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+ * http
+ * .cors() // Habilita CORS usando la configuración de WebMvcConfigurer
+ * .and()
+ * .csrf().disable()
+ * // ...otras configuraciones de seguridad...
+ * ;
+ * return http.build();
+ * }
+ * }
+ */
