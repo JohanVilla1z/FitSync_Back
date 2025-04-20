@@ -82,6 +82,12 @@ public class AuthService {
       // Validate user exists before authentication
       UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
 
+      // Verificar la contraseña
+      if (!passwordEncoder.matches(request.getPassword(), userDetails.getPassword())) {
+        throw new com.johan.gym_control.exceptions.auth.AuthenticationException(
+            "Credenciales inválidas: contraseña incorrecta");
+      }
+
       // Generate JWT token
       String jwt = tokenProvider.generateToken(userDetails);
 
