@@ -1,13 +1,11 @@
 package com.johan.gym_control.models.dto.entrylog;
 
-import com.johan.gym_control.models.dto.equipment.EquipmentBorrowedDTO;
+import java.util.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
-import java.util.Set;
 
 @Data
 @Builder
@@ -18,6 +16,5 @@ public class EntryLogResponseDTO {
   private Date timestamp;
   private String userName;
   private String userLastName;
-  private Set<EquipmentBorrowedDTO> borrowedEquipment;
   private Boolean editable; // Indica si han pasado menos de 8 horas
 }

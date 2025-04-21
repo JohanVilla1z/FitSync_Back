@@ -1,14 +1,12 @@
 package com.johan.gym_control.utils;
 
-import com.johan.gym_control.models.EntryLog;
-import com.johan.gym_control.models.dto.entrylog.EntryLogResponseDTO;
-import com.johan.gym_control.models.dto.equipment.EquipmentBorrowedDTO;
-import org.springframework.stereotype.Component;
-
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
+import com.johan.gym_control.models.EntryLog;
+import com.johan.gym_control.models.dto.entrylog.EntryLogResponseDTO;
 
 @Component
 public class EntryLogMapper {
@@ -29,21 +27,12 @@ public class EntryLogMapper {
     Date timeLimit = calendar.getTime();
     boolean isEditable = entryLog.getTimestamp().after(timeLimit);
 
-    Set<EquipmentBorrowedDTO> equipmentDTOs = entryLog.getBorrowedEquipment().stream()
-            .map(eq -> EquipmentBorrowedDTO.builder()
-                    .id(eq.getEqId())
-                    .name(eq.getEqName())
-                    .description(eq.getEqDescription())
-                    .build())
-            .collect(Collectors.toSet());
-
     return EntryLogResponseDTO.builder()
-            .logId(entryLog.getLogId())
-            .timestamp(entryLog.getTimestamp())
-            .userName(entryLog.getUser().getName())
-            .userLastName(entryLog.getUser().getUserLastName())
-            .borrowedEquipment(equipmentDTOs)
-            .editable(isEditable)
-            .build();
+        .logId(entryLog.getLogId())
+        .timestamp(entryLog.getTimestamp())
+        .userName(entryLog.getUser().getName())
+        .userLastName(entryLog.getUser().getUserLastName())
+        .editable(isEditable)
+        .build();
   }
 }

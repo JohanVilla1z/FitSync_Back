@@ -48,10 +48,4 @@ public class Equipment {
 
   @Column(name = "eqLoanCount", nullable = false)
   private Integer eqLoanCount = 0;
-
-  @PrePersist
-  @PreUpdate
-  private void syncAvailableWithStatus() {
-    this.eqAvailable = (eqStatus == EquipmentStatus.AVAILABLE);
-  }
 }
