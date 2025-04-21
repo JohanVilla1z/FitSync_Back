@@ -16,6 +16,5 @@ public class EquipmentResponseDTO {
   private String name;
   private String description;
   private EquipmentStatus status;
-  private int currentLoans;
-  private int loanCount;
+  private Integer loanCount;
 }
