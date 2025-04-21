@@ -1,9 +1,9 @@
 package com.johan.gym_control.controllers.equipment;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,6 +28,8 @@ import com.johan.gym_control.services.equipment.UpdateEquipmentCommand;
 import com.johan.gym_control.utils.EquipmentMapper;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -57,25 +59,28 @@ public class EquipmentController {
     return new ResponseEntity<>(equipmentMapper.toDto(savedEquipment), HttpStatus.CREATED);
   }
 
-  @Operation(summary = "Obtener todos los equipos", description = "Devuelve una lista de todos los equipos registrados.")
+  @Operation(summary = "Obtener todos los equipos", description = "Devuelve una lista paginada de todos los equipos registrados. Usa los parámetros 'page', 'size' y 'sort' para controlar la paginación y el orden.")
+  @Parameters({
+      @Parameter(name = "page", description = "Número de página (empezando en 0)", example = "0"),
+      @Parameter(name = "size", description = "Cantidad de elementos por página", example = "10"),
+      @Parameter(name = "sort", description = "Campo y dirección de ordenamiento, por ejemplo 'name,asc'", example = "name,asc")
+  })
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Lista de equipos obtenida exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EquipmentResponseDTO.class)))
+      @ApiResponse(responseCode = "200", description = "Lista paginada de equipos obtenida exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EquipmentResponseDTO.class)))
   })
   @GetMapping
-  public ResponseEntity<List<EquipmentResponseDTO>> getAllEquipment() {
+  public ResponseEntity<Page<EquipmentResponseDTO>> getAllEquipment(
+      @Parameter(hidden = true) Pageable pageable) {
     try {
-      GetAllEquipmentCommand getAllCommand = new GetAllEquipmentCommand(equipmentRepository);
-      List<Equipment> equipments = getAllCommand.execute();
-      List<EquipmentResponseDTO> equipmentDTOs = equipments.stream()
-          .map(equipmentMapper::toDto)
-          .collect(Collectors.toList());
+      GetAllEquipmentCommand getAllCommand = new GetAllEquipmentCommand(equipmentRepository, pageable);
+      Page<Equipment> equipments = getAllCommand.execute();
+      Page<EquipmentResponseDTO> equipmentDTOs = equipments.map(equipmentMapper::toDto);
       return ResponseEntity.ok(equipmentDTOs);
     } catch (Exception e) {
       e.printStackTrace();
-      String errorJson = "{\"error\": \"Internal Server Error: " + e.getMessage() + "\"}";
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .header("Content-Type", "application/json")
-          .body(null);
+          .body(Page.empty());
     }
   }
 
@@ -88,7 +93,6 @@ public class EquipmentController {
   public ResponseEntity<EquipmentResponseDTO> getEquipmentById(@PathVariable Long id) {
     GetEquipmentByIdCommand getByIdCommand = new GetEquipmentByIdCommand(equipmentRepository);
     Optional<Equipment> equipmentOptional = getByIdCommand.execute(id);
-
     return equipmentOptional
         .map(equipment -> ResponseEntity.ok(equipmentMapper.toDto(equipment)))
         .orElse(ResponseEntity.notFound().build());
@@ -103,20 +107,15 @@ public class EquipmentController {
   public ResponseEntity<EquipmentResponseDTO> updateEquipment(
       @PathVariable Long id,
       @Valid @RequestBody EquipmentRequestDTO equipmentRequestDTO) {
-
     GetEquipmentByIdCommand getByIdCommand = new GetEquipmentByIdCommand(equipmentRepository);
     Optional<Equipment> equipmentOptional = getByIdCommand.execute(id);
-
     if (equipmentOptional.isEmpty()) {
       return ResponseEntity.notFound().build();
     }
-
     Equipment equipment = equipmentOptional.get();
     equipmentMapper.updateEntityFromDto(equipment, equipmentRequestDTO);
-
     UpdateEquipmentCommand updateCommand = new UpdateEquipmentCommand(equipmentRepository);
     Equipment updatedEquipment = updateCommand.execute(equipment);
-
     return ResponseEntity.ok(equipmentMapper.toDto(updatedEquipment));
   }
 
@@ -128,14 +127,11 @@ public class EquipmentController {
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteEquipment(@PathVariable Long id) {
     GetEquipmentByIdCommand getByIdCommand = new GetEquipmentByIdCommand(equipmentRepository);
-
     if (getByIdCommand.execute(id).isEmpty()) {
       return ResponseEntity.notFound().build();
     }
-
     DeleteEquipmentCommand deleteCommand = new DeleteEquipmentCommand(equipmentRepository);
     deleteCommand.execute(id);
-
     return ResponseEntity.noContent().build();
   }
 
@@ -147,10 +143,8 @@ public class EquipmentController {
   @PostMapping("/{id}/toggle-availability")
   public ResponseEntity<EquipmentResponseDTO> toggleAvailability(@PathVariable Long id) {
     toggleCommand.execute(id);
-
     GetEquipmentByIdCommand getByIdCommand = new GetEquipmentByIdCommand(equipmentRepository);
     Optional<Equipment> equipment = getByIdCommand.execute(id);
-
     return equipment
         .map(e -> ResponseEntity.ok(equipmentMapper.toDto(e)))
         .orElse(ResponseEntity.notFound().build());

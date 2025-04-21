@@ -43,18 +43,9 @@ public class Equipment {
   @NotNull(message = "El estado del equipo no puede estar vacío")
   private EquipmentStatus eqStatus;
 
-  // Mantener el campo antiguo por compatibilidad con la base de datos
   @Column(name = "eqAvailable", nullable = false)
   private Boolean eqAvailable = true;
 
   @Column(name = "eqLoanCount", nullable = false)
   private Integer eqLoanCount = 0;
-
-  // Sincronizar automáticamente eqAvailable con eqStatus
-  @PrePersist
-  @PreUpdate
-  private void syncAvailableWithStatus() {
-    // Si el estado es AVAILABLE, entonces eqAvailable = true
-    this.eqAvailable = (eqStatus == EquipmentStatus.AVAILABLE);
-  }
 }
