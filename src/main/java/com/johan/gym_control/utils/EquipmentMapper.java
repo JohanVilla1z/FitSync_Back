@@ -44,7 +44,6 @@ public class EquipmentMapper {
         .name(equipment.getEqName())
         .description(equipment.getEqDescription())
         .status(equipment.getEqStatus())
-        .currentLoans(equipment.getEntryLogs() != null ? equipment.getEntryLogs().size() : 0)
         .loanCount(equipment.getEqLoanCount())
         .build();
   }
