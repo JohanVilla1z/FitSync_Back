@@ -1,15 +1,17 @@
 package com.johan.gym_control.services.trainer;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.johan.gym_control.models.Trainer;
 import com.johan.gym_control.models.User;
 import com.johan.gym_control.repositories.TrainerRepository;
 import com.johan.gym_control.repositories.UserRepository;
 import com.johan.gym_control.services.interfaces.ICommandParametrized;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
@@ -19,8 +21,10 @@ public class ToggleTrainerActiveStatusCommand implements ICommandParametrized<Tr
 
   @Override
   public Trainer execute(Long id) {
-    Trainer trainer = trainerRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Trainer with ID " + id + " does not exist"));
+    // Recuperar el entrenador con usuarios usando fetch join para evitar problemas
+    // de lazy loading
+    Trainer trainer = trainerRepository.findByIdWithUsers(id)
+        .orElseThrow(() -> new IllegalArgumentException("Trainer with ID " + id + " does not exist"));
 
     boolean newStatus = !trainer.getIsActive();
     trainer.setIsActive(newStatus);
@@ -35,6 +39,10 @@ public class ToggleTrainerActiveStatusCommand implements ICommandParametrized<Tr
       trainer.getUsers().clear();
     }
 
-    return trainerRepository.save(trainer);
+    try {
+      return trainerRepository.save(trainer);
+    } catch (Exception e) {
+      throw new RuntimeException("Error al actualizar el estado del entrenador: " + e.getMessage(), e);
+    }
   }
 }

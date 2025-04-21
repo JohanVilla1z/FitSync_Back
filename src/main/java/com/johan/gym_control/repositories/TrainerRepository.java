@@ -21,4 +21,12 @@ public interface TrainerRepository extends JpaRepository<Trainer, Long> {
      */
     @Query("SELECT DISTINCT t FROM Trainer t LEFT JOIN FETCH t.users")
     List<Trainer> findAllWithUsers();
+
+    /**
+     * Obtiene un entrenador por ID junto con sus usuarios asignados usando fetch
+     * join
+     * para evitar problemas de lazy loading al acceder a la colección users.
+     */
+    @Query("SELECT t FROM Trainer t LEFT JOIN FETCH t.users WHERE t.id = :id")
+    Optional<Trainer> findByIdWithUsers(Long id);
 }
