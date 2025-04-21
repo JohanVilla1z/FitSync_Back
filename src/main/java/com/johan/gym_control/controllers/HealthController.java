@@ -1,6 +1,5 @@
 package com.johan.gym_control.controllers;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
