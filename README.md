@@ -1,8 +1,10 @@
-# FitSync
+# FitSync BackEnd
 
-<img alt="Spring Boot" src="https://img.shields.io/badge/Spring Boot-3.2.3-brightgreen.svg">
-<img alt="Java" src="https://img.shields.io/badge/Java-17-orange.svg">
 <img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg">
+<img alt="Spring Boot" src="https://img.shields.io/badge/Spring Boot-3.1.10-brightgreen.svg?logo=spring">
+<img alt="Java" src="https://img.shields.io/badge/Java-17-orange.svg?logo=openjdk">
+<img alt="Gradle" src="https://img.shields.io/badge/Gradle-8.x-blue.svg?logo=gradle">
+<img alt="Swagger" src="https://img.shields.io/badge/Swagger%20(OpenAPI)-3.0-orange.svg?logo=swagger">
 
 FitSync es un sistema de gestión de gimnasio que proporciona una API RESTful para el control de usuarios, registro de entradas, préstamos de equipamiento y administración general de un centro deportivo.
 
@@ -18,6 +20,9 @@ FitSync es un sistema de gestión de gimnasio que proporciona una API RESTful pa
 - [Instalación](#instalación)
 - [Configuración](#configuración)
 - [Documentación API](#documentación-api)
+  - [Acceso a Swagger UI](#acceso-a-swagger-ui)
+  - [Endpoints Principales](#endpoints-principales)
+  - [Ejemplo de Peticiones y Respuestas](#ejemplo-de-peticiones-y-respuestas)
 - [Seguridad](#seguridad)
 - [Despliegue](#despliegue)
 - [Contribución](#contribución)
@@ -33,7 +38,7 @@ FitSync permite gestionar eficientemente un gimnasio mediante un sistema de APIs
 - Asignación de roles (administrador, entrenador, usuario)
 - Informes y estadísticas de uso
 
-El sistema está diseñado con una arquitectura basada en microservicios usando Spring Boot, siguiendo principios SOLID y un enfoque orientado a la API RESTful.
+El sistema está diseñado con una arquitectura robusta usando Spring Boot 3.1.10, siguiendo principios SOLID y un enfoque orientado a la API RESTful.
 
 ## Características
 
@@ -213,7 +218,9 @@ jwt.expiration=86400000 # 1 día en milisegundos
 ./gradlew bootRun
 ```
 
-## Documentación API
+## Documentación de la API
+
+### Acceso a Swagger UI
 
 La documentación completa de la API está disponible a través de Swagger UI una vez que la aplicación está en ejecución:
 
