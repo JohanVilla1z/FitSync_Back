@@ -1,10 +1,12 @@
 # FitSync BackEnd
 
-<img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg">
-<img alt="Spring Boot" src="https://img.shields.io/badge/Spring Boot-3.1.10-brightgreen.svg?logo=spring">
-<img alt="Java" src="https://img.shields.io/badge/Java-17-orange.svg?logo=openjdk">
-<img alt="Gradle" src="https://img.shields.io/badge/Gradle-8.x-blue.svg?logo=gradle">
-<img alt="Swagger" src="https://img.shields.io/badge/Swagger%20(OpenAPI)-3.0-orange.svg?logo=swagger">
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.1.10-brightgreen.svg?logo=spring)](https://spring.io/projects/spring-boot)
+[![Java](https://img.shields.io/badge/Java-17-orange.svg?logo=openjdk)](https://openjdk.org/projects/jdk/17/)
+[![Gradle](https://img.shields.io/badge/Gradle-8.x-blue.svg?logo=gradle)](https://gradle.org/)
+[![Swagger](<https://img.shields.io/badge/Swagger%20(OpenAPI)-3.0-orange.svg?logo=swagger>)](https://swagger.io/specification/)
+[![Docker](https://img.shields.io/badge/Docker-Build-blue?logo=docker)](https://www.docker.com/)
+[![Deploy on Railway](https://img.shields.io/badge/Railway-Deploy-2b9348?logo=railway)](https://railway.app/)
 
 FitSync es un sistema de gestión de gimnasio que proporciona una API RESTful para el control de usuarios, registro de entradas, préstamos de equipamiento y administración general de un centro deportivo.
 
@@ -328,30 +330,44 @@ La documentación completa de la API está disponible a través de Swagger UI un
 
 Esto generará un archivo JAR ejecutable en `build/libs/`.
 
-### Despliegue en Producción (Ejemplo con Railway)
+### Despliegue con Docker
 
-1.  **Configuración del Proyecto en Railway:**
-    - Conecta tu repositorio Git a Railway.
-    - Railway detectará que es un proyecto Java/Spring Boot.
-    - Configura el comando de build (usualmente `./gradlew bootJar`) y el comando de start (`java -jar build/libs/FitSync-0.0.1-SNAPSHOT.jar` - ajusta el nombre del JAR).
-2.  **Variables de Entorno Críticas:**
-    - Configura las siguientes variables de entorno en el panel de Railway:
-      - `SPRING_DATASOURCE_URL`: La URL JDBC de tu base de datos en producción (Railway puede proveer una base de datos o puedes conectar una externa).
-      - `SPRING_DATASOURCE_USERNAME`: Usuario de la base de datos.
-      - `SPRING_DATASOURCE_PASSWORD`: Contraseña de la base de datos.
-      - `JWT_SECRET`: Tu clave secreta JWT (debe ser fuerte y diferente a la de desarrollo).
-      - `JWT_EXPIRATION`: Tiempo de expiración del token.
-      - `SPRING_JPA_HIBERNATE_DDL_AUTO`: Configúralo como `validate` o `none` en producción. Usa Flyway o Liquibase para gestionar migraciones de esquema.
-      - `SERVER_PORT`: Railway asigna un puerto, pero puedes definirlo si es necesario (usualmente no se requiere).
-3.  **Base de Datos:**
-    - Asegúrate de que la base de datos esté configurada y accesible desde la aplicación desplegada.
-    - Aplica las migraciones de base de datos necesarias antes o durante el despliegue.
-4.  **Escalado y Monitoreo:**
-    - Railway permite escalar los recursos (CPU, RAM) de tu servicio fácilmente desde su dashboard.
-    - Utiliza las herramientas de logging y métricas de Railway para monitorear el rendimiento y los errores de la aplicación.
-    - Considera integrar herramientas de monitoreo externas (ej., Datadog, New Relic) si necesitas análisis más profundos.
-5.  **HTTPS:**
-    - Railway generalmente proporciona certificados SSL/TLS automáticamente para los dominios personalizados o los subdominios `*.up.railway.app`.
+Puedes construir y ejecutar la aplicación usando Docker:
+
+```bash
+docker build -t fitsync-backend .
+docker run -p 8080:8080 --env-file .env fitsync-backend
+```
+
+Asegúrate de definir todas las variables de entorno necesarias en tu archivo `.env` (ver sección de configuración).
+
+### Despliegue en Railway
+
+1. **Sube tu repositorio a Railway** ([Railway Dashboard](https://railway.app/dashboard)).
+2. Railway detectará automáticamente el `Dockerfile` y construirá la imagen.
+3. Configura las variables de entorno críticas en el panel de Railway:
+   - `SPRING_DATASOURCE_URL`
+   - `SPRING_DATASOURCE_USERNAME`
+   - `SPRING_DATASOURCE_PASSWORD`
+   - `JWT_SECRET`
+   - `JWT_EXPIRATION`
+   - `SPRING_JPA_HIBERNATE_DDL_AUTO`
+   - `SERVER_PORT` (Railway la asigna automáticamente, pero puedes usarla para pruebas locales)
+4. **Base de datos:** Asegúrate de que la base de datos esté accesible y aplica las migraciones necesarias antes del despliegue.
+5. **Escalado y monitoreo:** Usa el dashboard de Railway para escalar recursos y monitorear logs y métricas.
+6. **HTTPS:** Railway proporciona certificados SSL/TLS automáticamente para dominios personalizados y subdominios `*.up.railway.app`.
+7. **Variables de entorno sensibles:** Nunca subas tus secretos al repositorio, usa siempre el panel de Railway para gestionarlas.
+8. **Healthcheck:** El contenedor incluye un healthcheck en `/api/health`. Puedes personalizarlo según tus necesidades.
+
+#### Troubleshooting y buenas prácticas
+
+- Si la app no arranca, revisa los logs en Railway y verifica que todas las variables de entorno estén correctamente configuradas.
+- Usa `spring.jpa.hibernate.ddl-auto=validate` o `none` en producción para evitar cambios accidentales en el esquema.
+- Usa `spring.jpa.hibernate.ddl-auto=update` en producción para crear las tablas iniciales con el seeder en caso de usar una instancia nueva de MySQL vacía.
+- Si usas Flyway o Liquibase, asegúrate de que las migraciones se apliquen correctamente en cada despliegue.
+- Para entornos con poca RAM (como Railway free), ajusta los parámetros de la JVM y el pool de conexiones en `application-prod.properties`.
+
+Más información en la [documentación oficial de Railway](https://docs.railway.app/deploy/docker).
 
 ## Contribución
 
