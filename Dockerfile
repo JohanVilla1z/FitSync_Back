@@ -58,7 +58,7 @@ ENV PORT=8080
 
 # Limita el heap de la JVM al 40% de la RAM del contenedor y reduce el Metaspace para evitar OOM
 # Reduce aún más los threads de Tomcat para liberar memoria
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=40.0 -XX:MaxMetaspaceSize=128m -Xss256k -Djava.security.egd=file:/dev/./urandom -Dserver.tomcat.max-threads=5 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/heapdump.hprof -Xlog:gc*"
+# ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=40.0 -XX:MaxMetaspaceSize=128m -Xss256k -Djava.security.egd=file:/dev/./urandom -Dserver.tomcat.max-threads=5 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/heapdump.hprof -Xlog:gc*"
 
 # Healthcheck to verify application status (ensure /api/health exists and returns 2xx)
 # Increased start-period slightly to give more time for Spring Boot startup in limited env.
