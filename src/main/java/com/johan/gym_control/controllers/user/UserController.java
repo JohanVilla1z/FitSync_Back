@@ -68,15 +68,16 @@ public class UserController {
 
   @Operation(summary = "Obtener usuario por ID", description = "Devuelve los datos de un usuario según su ID.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Usuario obtenido exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
+      @ApiResponse(responseCode = "200", description = "Usuario obtenido exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserProfileResponse.class))),
       @ApiResponse(responseCode = "404", description = "Usuario no encontrado", content = @Content(mediaType = "application/json"))
   })
   @GetMapping("/{userId}")
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<User> getUserById(@PathVariable Long userId) {
+  public ResponseEntity<UserProfileResponse> getUserById(@PathVariable Long userId) {
     GetUserByIdCommand command = new GetUserByIdCommand(userRepository);
     Optional<User> user = command.execute(userId);
-    return user.map(ResponseEntity::ok)
+    return user
+        .map(u -> ResponseEntity.ok(userMapper.convertToDTO(u)))
         .orElse(ResponseEntity.notFound().build());
   }
 

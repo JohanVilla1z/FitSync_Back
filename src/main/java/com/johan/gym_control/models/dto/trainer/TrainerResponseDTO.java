@@ -13,5 +13,5 @@ public class TrainerResponseDTO {
   private String email;
   private boolean active;
   private boolean available;
-  private List<Long> userIds;
+  private List<Long> userIds; // Solo IDs, no objetos User
 }
