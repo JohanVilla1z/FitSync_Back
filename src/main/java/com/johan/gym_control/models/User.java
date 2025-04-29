@@ -1,8 +1,13 @@
 package com.johan.gym_control.models;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import com.johan.gym_control.models.enums.Role;
 import com.johan.gym_control.services.observers.interfaces.IMCObservable;
 import com.johan.gym_control.services.observers.interfaces.IMCObserver;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,10 +28,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @Data
 @Entity
