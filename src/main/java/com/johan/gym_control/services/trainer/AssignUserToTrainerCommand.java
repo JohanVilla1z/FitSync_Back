@@ -24,7 +24,7 @@ public class AssignUserToTrainerCommand implements ICommandParametrized<Void, Lo
 
     User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " does not exist."));
-    Trainer trainer = trainerRepository.findById(trainerId)
+    Trainer trainer = trainerRepository.findByIdWithUsers(trainerId)
             .orElseThrow(() -> new IllegalArgumentException("Trainer with ID " + trainerId + " does not exist."));
 
     if (!trainer.isTrainerAvailable()) {
