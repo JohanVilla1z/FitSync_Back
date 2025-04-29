@@ -1,12 +1,13 @@
 package com.johan.gym_control.services.trainer;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.johan.gym_control.models.Trainer;
 import com.johan.gym_control.models.dto.trainer.TrainerCreateRequest;
 import com.johan.gym_control.models.enums.Role;
 import com.johan.gym_control.repositories.TrainerRepository;
 import com.johan.gym_control.services.interfaces.ICommandParametrized;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 public class CreateTrainerCommand implements ICommandParametrized<Trainer, TrainerCreateRequest> {
@@ -29,7 +30,8 @@ public class CreateTrainerCommand implements ICommandParametrized<Trainer, Train
     trainer.setName(request.getName());
     trainer.setEmail(request.getEmail());
     trainer.setPassword(passwordEncoder.encode(request.getPassword()));
-    trainer.setIsActive(request.getIsActive());
+    // Si el request trae null, asigna true por defecto
+    trainer.setIsActive(request.getIsActive() != null ? request.getIsActive() : true);
     trainer.setRole(Role.TRAINER);
 
     return trainerRepository.save(trainer);
